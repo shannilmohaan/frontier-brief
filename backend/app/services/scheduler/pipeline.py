@@ -7,7 +7,6 @@ from app.core.config import settings
 from app.db.models import DigestCycle, DigestItem, SourceItem
 from app.services.fetchers.base import FetchedItem
 from app.services.fetchers.hf_papers import HFPapersFetcher
-from app.services.fetchers.the_batch import TheBatchFetcher
 from app.services.fetchers.youtube import YouTubeFetcher
 from app.services.ranker import rank_and_cap, score_item
 from app.services.synthesis.synthesizer import SynthesizedItem, synthesize
@@ -26,7 +25,11 @@ async def run_pipeline(cycle_id: uuid.UUID, session_factory) -> None:
             cycle_id, session_factory
         )
         ranked = rank_and_cap(all_items, max_per_domain=settings.max_items_per_domain)
-        synthesized = await synthesize(ranked)  # External API — no DB connection held
+        # Drop items with no summary — Claude can't write a useful digest entry from a title alone.
+        synthesizable = [item for item in ranked if item.summary and item.summary.strip()]
+        if len(synthesizable) < len(ranked):
+            logger.info("Dropped %d item(s) with empty summary before synthesis", len(ranked) - len(synthesizable))
+        synthesized = await synthesize(synthesizable)  # External API — no DB connection held
         await _persist_digest_items(cycle_id, synthesized, source_items_by_url, scores_by_url, len(all_items), session_factory)
     except Exception as exc:
         logger.exception("Pipeline failed for cycle %s", cycle_id)
@@ -53,9 +56,9 @@ async def _fetch_and_persist_sources(
         cycle.status = "running"
         await session.commit()
 
-        # HF Papers publishes in weekday batches — use a wider window so weekend
-        # runs still find content (Friday papers are ~60h old on Sunday).
-        fetchers = [YouTubeFetcher(), TheBatchFetcher(), HFPapersFetcher(window_hours=96)]
+        # Both YouTube and HF Papers use a 96h window so weekend runs capture
+        # the week's content (HF doesn't publish Sat/Sun; channels may skip days).
+        fetchers = [YouTubeFetcher(window_hours=96), HFPapersFetcher(window_hours=96)]
         raw_results = await asyncio.gather(*[f.fetch() for f in fetchers], return_exceptions=True)
 
         all_items: list[FetchedItem] = []
