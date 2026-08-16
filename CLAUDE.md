@@ -11,8 +11,8 @@
 | Field | Value |
 |-------|-------|
 | **Current Phase** | Phase 1 — MVP |
-| **Active Sub-phase** | 1c — Web UI (in progress) |
-| **Next Action** | Implement components, run `ecc:react-reviewer` + `/frontier-ui-check` |
+| **Active Sub-phase** | 1d — Pipeline wiring (in progress) |
+| **Next Action** | Run `ecc:python-reviewer`, `ecc:fastapi-reviewer`, `ecc:security-reviewer` → push to GitHub → test via live URLs → `/frontier-phase-gate` |
 
 > **Update this table at the start of every session and whenever a sub-phase completes.**
 

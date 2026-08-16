@@ -32,4 +32,5 @@ export interface DigestResponse {
 export interface RefreshResponse {
   job_id: string;
   status: string;
+  created?: boolean;
 }

@@ -95,3 +95,7 @@ def rank_and_cap(items: list[FetchedItem], max_per_domain: int = 10) -> list[Fet
             result.append(item)
 
     return result
+
+
+def score_item(item: FetchedItem) -> float:
+    return _relevance_score(item, datetime.now(timezone.utc))

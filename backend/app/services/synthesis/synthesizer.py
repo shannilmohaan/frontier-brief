@@ -57,6 +57,8 @@ def _parse_response(raw: str, fetched_by_url: dict[str, FetchedItem]) -> list[Sy
             logger.debug("Skipping element with missing/unmatched source_url: %s", url)
             continue
         fetched = fetched_by_url[url]
+        # Truncate before citation to limit prompt-injection blast radius
+        narrative = narrative[:1000]
         # Citation is appended deterministically — not left to Claude — to guarantee accuracy.
         cited_narrative = f"{narrative.rstrip()}\n\nSource: [{fetched.source_name}]({url})"
         results.append(
