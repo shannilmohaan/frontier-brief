@@ -6,8 +6,8 @@ import { DomainFilterChips } from "@/components/filters/DomainFilterChips";
 import { DigestSection } from "@/components/digest/DigestSection";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Spinner } from "@/components/ui/Spinner";
-import { fetchLatestDigest, pollRefreshStatus, triggerRefresh } from "@/lib/api";
-import type { DigestItem, Domain } from "@/lib/types";
+import { fetchLatestDigest, fetchHistory, pollRefreshStatus, triggerRefresh } from "@/lib/api";
+import type { CycleInfo, DigestItem, Domain } from "@/lib/types";
 
 function formatRelativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -19,16 +19,38 @@ function formatRelativeTime(iso: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function RefreshIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-      <path
-        d="M12.5 2.5A6 6 0 1 1 7.5 1.5M12.5 2.5V5.5M12.5 2.5H9.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M12.5 2.5A6 6 0 1 1 7.5 1.5M12.5 2.5V5.5M12.5 2.5H9.5"
+        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function HistoryIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+      <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M7.5 4.5V7.5L9.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function BackIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -40,22 +62,28 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const mountedRef = useRef(true);
+  const [activeCycleId, setActiveCycleId] = useState<string | null>(null);
 
+  // History state
+  const [showHistory, setShowHistory] = useState(false);
+  const [cycles, setCycles] = useState<CycleInfo[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const mountedRef = useRef(true);
   useEffect(() => {
     mountedRef.current = true;
     return () => { mountedRef.current = false; };
   }, []);
 
-  const loadDigest = useCallback(async () => {
+  const loadDigest = useCallback(async (cycleId?: string) => {
+    setIsLoading(true);
     try {
-      const data = await fetchLatestDigest();
+      const data = await fetchLatestDigest(undefined, cycleId);
       if (!mountedRef.current) return;
       setItems(data.items);
+      setActiveCycleId(data.cycle_id);
       if (data.items.length > 0) {
-        const latest = data.items.reduce((a, b) =>
-          a.created_at > b.created_at ? a : b
-        );
+        const latest = data.items.reduce((a, b) => a.created_at > b.created_at ? a : b);
         setLastUpdated(latest.created_at);
       }
       setError(null);
@@ -67,9 +95,26 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => {
-    loadDigest();
-  }, [loadDigest]);
+  useEffect(() => { loadDigest(); }, [loadDigest]);
+
+  const openHistory = async () => {
+    setShowHistory(true);
+    setHistoryLoading(true);
+    try {
+      const data = await fetchHistory();
+      if (mountedRef.current) setCycles(data.cycles);
+    } catch {
+      // silently fail — list stays empty
+    } finally {
+      if (mountedRef.current) setHistoryLoading(false);
+    }
+  };
+
+  const selectCycle = async (cycleId: string) => {
+    setShowHistory(false);
+    setActiveDomain(null);
+    await loadDigest(cycleId);
+  };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -85,6 +130,7 @@ export default function Home() {
         const { status } = await pollRefreshStatus(job_id);
         if (status === "completed") {
           finished = true;
+          setActiveDomain(null);
           await loadDigest();
           break;
         }
@@ -112,82 +158,127 @@ export default function Home() {
     ? items.filter((item) => item.domain_tags.includes(activeDomain))
     : items;
 
-  const grouped = filteredItems.reduce<Record<string, DigestItem[]>>(
-    (acc, item) => {
-      const domain = item.domain_tags[0] ?? "AI Research";
-      acc[domain] = [...(acc[domain] ?? []), item];
-      return acc;
-    },
-    {}
-  );
+  const grouped = filteredItems.reduce<Record<string, DigestItem[]>>((acc, item) => {
+    const domain = item.domain_tags[0] ?? "AI Research";
+    acc[domain] = [...(acc[domain] ?? []), item];
+    return acc;
+  }, {});
+
+  const isViewingPast = activeCycleId !== null && cycles.length > 0 &&
+    cycles[0]?.id !== activeCycleId;
 
   return (
     <div className="min-h-screen bg-[#0f172a]">
       {/* Header */}
       <header className="sticky top-0 z-20 bg-[#0a0f1e]/95 backdrop-blur-md border-b border-[#1e293b]">
         <div className="max-w-[680px] mx-auto px-4 h-[52px] flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => { setShowHistory(false); if (isViewingPast) loadDigest(); }}
+            className="flex items-center gap-2"
+          >
             <span className="text-[16px] font-bold tracking-tight text-[#f1f5f9]">
               Frontier Brief
             </span>
-            <span className="hidden sm:block text-[11px] text-[#334155] font-medium">
-              AI digest
-            </span>
-          </div>
+            {isViewingPast && (
+              <span className="text-[11px] text-[#6366f1] font-medium">past digest</span>
+            )}
+          </button>
 
-          <div className="flex items-center gap-3">
-            {lastUpdated && (
-              <span className="text-[11px] text-[#475569] tabular-nums">
+          <div className="flex items-center gap-1">
+            {lastUpdated && !showHistory && (
+              <span className="text-[11px] text-[#475569] tabular-nums mr-1">
                 {formatRelativeTime(lastUpdated)}
               </span>
             )}
             <button
-              onClick={handleRefresh}
-              disabled={isRefreshing || isLoading}
-              className="p-2 rounded-lg text-[#475569] hover:text-[#94a3b8] hover:bg-[#1e293b] disabled:opacity-30 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
-              aria-label="Refresh digest"
+              onClick={() => showHistory ? setShowHistory(false) : openHistory()}
+              className={[
+                "p-2 rounded-lg transition-all min-w-[44px] min-h-[44px] flex items-center justify-center",
+                showHistory
+                  ? "text-[#6366f1] bg-[#1e293b]"
+                  : "text-[#475569] hover:text-[#94a3b8] hover:bg-[#1e293b]",
+              ].join(" ")}
+              aria-label="Digest history"
             >
-              {isRefreshing ? (
-                <Spinner className="h-[15px] w-[15px] text-[#6366f1]" />
-              ) : (
-                <RefreshIcon />
-              )}
+              {showHistory ? <BackIcon /> : <HistoryIcon />}
             </button>
+            {!showHistory && (
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing || isLoading}
+                className="p-2 rounded-lg text-[#475569] hover:text-[#94a3b8] hover:bg-[#1e293b] disabled:opacity-30 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label="Refresh digest"
+              >
+                {isRefreshing ? (
+                  <Spinner className="h-[15px] w-[15px] text-[#6366f1]" />
+                ) : (
+                  <RefreshIcon />
+                )}
+              </button>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Filter chips */}
-      {domains.length > 0 && (
+      {/* Filter chips — only in digest view */}
+      {!showHistory && domains.length > 0 && (
         <div className="sticky top-[52px] z-10 bg-[#0f172a] border-b border-[#1e293b]">
-          <DomainFilterChips
-            domains={domains}
-            active={activeDomain}
-            onSelect={setActiveDomain}
-          />
+          <DomainFilterChips domains={domains} active={activeDomain} onSelect={setActiveDomain} />
         </div>
       )}
 
-      {/* Content */}
+      {/* Main content */}
       <main className="max-w-[680px] mx-auto px-4 py-6">
         {error && (
-          <div
-            role="alert"
-            className="mb-5 text-[13px] text-red-400 bg-red-950/50 border border-red-900/50 rounded-xl px-4 py-3"
-          >
+          <div role="alert" className="mb-5 text-[13px] text-red-400 bg-red-950/50 border border-red-900/50 rounded-xl px-4 py-3">
             {error}
           </div>
         )}
 
-        {isLoading ? (
+        {showHistory ? (
+          /* History list */
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#475569] mb-4">
+              Past Digests
+            </p>
+            {historyLoading ? (
+              <div className="flex justify-center py-16">
+                <Spinner className="h-5 w-5 text-[#334155]" />
+              </div>
+            ) : cycles.length === 0 ? (
+              <EmptyState title="No history yet" subtitle="Run a refresh to create your first digest." />
+            ) : (
+              <div className="flex flex-col gap-2">
+                {cycles.map((cycle, i) => (
+                  <button
+                    key={cycle.id}
+                    onClick={() => selectCycle(cycle.id)}
+                    className="flex items-center justify-between w-full bg-[#1e293b] hover:bg-[#263347] border border-[#334155] hover:border-[#475569] rounded-xl px-4 py-3.5 transition-all text-left min-h-[56px]"
+                  >
+                    <div className="flex items-center gap-3">
+                      {i === 0 && (
+                        <span className="text-[10px] font-semibold text-[#6366f1] bg-[#1e1b4b] px-2 py-0.5 rounded-full">
+                          Latest
+                        </span>
+                      )}
+                      <span className="text-[14px] text-[#e2e8f0] font-medium">
+                        {formatDate(cycle.completed_at)}
+                      </span>
+                    </div>
+                    <span className="text-[12px] text-[#475569] shrink-0 ml-2">
+                      {cycle.items_synthesized} items
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : isLoading ? (
           <div className="flex justify-center py-24">
             <Spinner className="h-5 w-5 text-[#334155]" />
           </div>
         ) : Object.keys(grouped).length === 0 ? (
-          <EmptyState
-            title="No digest yet"
-            subtitle="Hit the refresh button to fetch the latest AI developments."
-          />
+          <EmptyState title="No digest yet" subtitle="Hit the refresh button to fetch the latest AI developments." />
         ) : (
           <div className="space-y-8">
             {Object.entries(grouped).map(([domain, domainItems]) => (

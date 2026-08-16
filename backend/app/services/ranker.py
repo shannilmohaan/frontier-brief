@@ -70,8 +70,12 @@ def _relevance_score(item: FetchedItem, now: datetime) -> float:
     return recency * 0.7 + domain_match * 0.3
 
 
-def rank_and_cap(items: list[FetchedItem], max_per_domain: int = 10) -> list[FetchedItem]:
-    """Deduplicate by URL, ensure domain tags, score, and cap at max_per_domain per domain."""
+def rank_and_cap(
+    items: list[FetchedItem],
+    max_per_domain: int = 10,
+    max_per_source: int = 2,
+) -> list[FetchedItem]:
+    """Deduplicate by URL, ensure domain tags, score, and cap per domain and per source."""
     seen_urls: set[str] = set()
     unique: list[FetchedItem] = []
     for item in items:
@@ -85,13 +89,19 @@ def rank_and_cap(items: list[FetchedItem], max_per_domain: int = 10) -> list[Fet
     unique.sort(key=lambda i: _relevance_score(i, now), reverse=True)
 
     domain_counts: dict[str, int] = {}
+    source_counts: dict[str, int] = {}
     result: list[FetchedItem] = []
     for item in unique:
         if not item.domain_tags:
             item.domain_tags = ["AI Research"]
         primary = item.domain_tags[0]
-        if domain_counts.get(primary, 0) < max_per_domain:
+        source = item.source_name
+        if (
+            domain_counts.get(primary, 0) < max_per_domain
+            and source_counts.get(source, 0) < max_per_source
+        ):
             domain_counts[primary] = domain_counts.get(primary, 0) + 1
+            source_counts[source] = source_counts.get(source, 0) + 1
             result.append(item)
 
     return result

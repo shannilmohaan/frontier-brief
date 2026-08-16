@@ -30,6 +30,16 @@ export interface DigestResponse {
   cycle_id: string | null;
 }
 
+export interface CycleInfo {
+  id: string;
+  completed_at: string;
+  items_synthesized: number;
+}
+
+export interface HistoryResponse {
+  cycles: CycleInfo[];
+}
+
 export interface RefreshResponse {
   job_id: string;
   status: string;
