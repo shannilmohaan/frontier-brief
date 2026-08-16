@@ -56,7 +56,13 @@ def _parse_response(raw: str, fetched_by_url: dict[str, FetchedItem]) -> list[Sy
         url = element.get("source_url", "").strip()
         narrative = element.get("narrative", "").strip()
         if not url or not narrative or url not in fetched_by_url:
-            logger.debug("Skipping element with missing/unmatched source_url: %s", url)
+            logger.warning(
+                "Skipped item: url=%r has_narrative=%s url_in_dict=%s dict_sample=%r",
+                url[:120] if url else url,
+                bool(narrative),
+                url in fetched_by_url,
+                list(fetched_by_url.keys())[:2],
+            )
             continue
         fetched = fetched_by_url[url]
         # Truncate before citation to limit prompt-injection blast radius
@@ -78,8 +84,10 @@ def _parse_response(raw: str, fetched_by_url: dict[str, FetchedItem]) -> list[Sy
 
 async def _synthesize_domain(domain: str, items: list[FetchedItem]) -> list[SynthesizedItem]:
     fetched_by_url = {item.source_url: item for item in items}
+    logger.warning("Synthesizing domain '%s' with %d items: %r", domain, len(items), list(fetched_by_url.keys())[:3])
     user_prompt = make_user_prompt(domain, items)
     raw = await claude_client.complete(SYSTEM_PROMPT, user_prompt)
+    logger.warning("Claude raw response for '%s' (first 400 chars): %.400s", domain, raw)
     return _parse_response(raw, fetched_by_url)
 
 
