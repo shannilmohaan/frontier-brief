@@ -18,9 +18,9 @@ target_metadata = Base.metadata
 def _clean_db_url(url: str) -> tuple[str, dict]:
     parsed = urlparse(url)
     params = parse_qs(parsed.query, keep_blank_values=True)
-    ssl_mode = params.pop("sslmode", ["disable"])[0]
-    clean_query = urlencode({k: v[0] for k, v in params.items()})
-    clean_url = urlunparse(parsed._replace(query=clean_query))
+    ssl_mode = params.get("sslmode", ["disable"])[0]
+    # asyncpg rejects ALL libpq-style query params (sslmode, channel_binding, etc.)
+    clean_url = urlunparse(parsed._replace(query=""))
     connect_args = {"ssl": True} if ssl_mode in ("require", "verify-ca", "verify-full") else {}
     return clean_url, connect_args
 
