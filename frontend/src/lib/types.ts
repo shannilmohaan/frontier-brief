@@ -14,6 +14,7 @@ export type Domain =
 
 export interface DigestItem {
   id: string;
+  source_title: string;
   narrative: string;
   source_name: string;
   source_url: string;

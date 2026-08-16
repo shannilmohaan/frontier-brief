@@ -13,7 +13,7 @@ export function DomainFilterChips({ domains, active, onSelect }: DomainFilterChi
     <div
       role="group"
       aria-label="Filter by domain"
-      className="flex gap-2 px-4 py-3 overflow-x-auto hide-scrollbar"
+      className="flex gap-2 px-4 py-2.5 overflow-x-auto hide-scrollbar"
     >
       <ChipButton active={active === null} onClick={() => onSelect(null)}>
         All
@@ -46,11 +46,11 @@ function ChipButton({
       onClick={onClick}
       aria-pressed={active}
       className={[
-        "shrink-0 px-4 rounded-full text-[13px] font-medium transition-colors whitespace-nowrap",
-        "min-h-[44px] min-w-[44px]",
+        "shrink-0 px-3.5 rounded-full text-[12px] font-medium transition-all whitespace-nowrap",
+        "min-h-[34px]",
         active
-          ? "bg-[#0F172A] text-white"
-          : "bg-white border border-[#E8EAED] text-[#475569] hover:border-[#D1D5DB]",
+          ? "bg-[#6366f1] text-white"
+          : "bg-[#1e293b] border border-[#334155] text-[#64748b] hover:border-[#475569] hover:text-[#94a3b8]",
       ].join(" ")}
     >
       {children}

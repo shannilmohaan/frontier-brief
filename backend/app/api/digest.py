@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.core.config import settings
 from app.db.database import get_session
@@ -18,6 +19,7 @@ _MAX_RESPONSE_ITEMS = 100
 
 class DigestItemSchema(BaseModel):
     id: uuid.UUID
+    source_title: str
     narrative: str
     source_name: str
     source_url: str
@@ -50,6 +52,7 @@ async def get_latest_digest(
 
     query = (
         select(DigestItem)
+        .options(joinedload(DigestItem.source_item))
         .where(DigestItem.cycle_id == cycle.id)
         .order_by(DigestItem.relevance_score.desc())
         .limit(settings.max_items_per_domain if domain else _MAX_RESPONSE_ITEMS)
@@ -64,6 +67,7 @@ async def get_latest_digest(
         items=[
             DigestItemSchema(
                 id=row.id,
+                source_title=row.source_item.title if row.source_item else "",
                 narrative=row.narrative,
                 source_name=row.source_name,
                 source_url=row.source_url,

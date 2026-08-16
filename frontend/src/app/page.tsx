@@ -21,9 +21,9 @@ function formatRelativeTime(iso: string): string {
 
 function RefreshIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
       <path
-        d="M13.5 2.5A6.5 6.5 0 1 1 8 1.5M13.5 2.5V6M13.5 2.5H10"
+        d="M12.5 2.5A6 6 0 1 1 7.5 1.5M12.5 2.5V5.5M12.5 2.5H9.5"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
@@ -61,7 +61,7 @@ export default function Home() {
       setError(null);
     } catch {
       if (!mountedRef.current) return;
-      setError("Could not load digest. Check your connection and try again.");
+      setError("Could not load digest.");
     } finally {
       if (mountedRef.current) setIsLoading(false);
     }
@@ -77,10 +77,10 @@ export default function Home() {
     let finished = false;
     try {
       const { job_id } = await triggerRefresh();
-      const deadline = Date.now() + 30_000;
+      const deadline = Date.now() + 120_000;
       while (Date.now() < deadline) {
         if (!mountedRef.current) return;
-        await new Promise((r) => setTimeout(r, 3_000));
+        await new Promise((r) => setTimeout(r, 4_000));
         if (!mountedRef.current) return;
         const { status } = await pollRefreshStatus(job_id);
         if (status === "completed") {
@@ -95,7 +95,7 @@ export default function Home() {
         }
       }
       if (!finished && mountedRef.current) {
-        setError("Refresh is taking longer than expected — it may still complete in the background.");
+        setError("Still processing — check back in a minute.");
       }
     } catch {
       if (mountedRef.current) setError("Refresh failed. Please try again.");
@@ -122,27 +122,33 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA]">
+    <div className="min-h-screen bg-[#0f172a]">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-[#E8EAED]">
+      <header className="sticky top-0 z-20 bg-[#0a0f1e]/95 backdrop-blur-md border-b border-[#1e293b]">
         <div className="max-w-[680px] mx-auto px-4 h-[52px] flex items-center justify-between">
-          <h1 className="text-[17px] font-bold tracking-tight text-[#0F172A]">
-            Frontier Brief
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <span className="text-[16px] font-bold tracking-tight text-[#f1f5f9]">
+              Frontier Brief
+            </span>
+            <span className="hidden sm:block text-[11px] text-[#334155] font-medium">
+              AI digest
+            </span>
+          </div>
+
           <div className="flex items-center gap-3">
             {lastUpdated && (
-              <span className="text-xs text-[#94A3B8] hidden sm:block tabular-nums">
+              <span className="text-[11px] text-[#475569] tabular-nums">
                 {formatRelativeTime(lastUpdated)}
               </span>
             )}
             <button
               onClick={handleRefresh}
               disabled={isRefreshing || isLoading}
-              className="p-2 rounded-full text-[#475569] hover:bg-[#F1F5F9] disabled:opacity-40 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-2 rounded-lg text-[#475569] hover:text-[#94a3b8] hover:bg-[#1e293b] disabled:opacity-30 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label="Refresh digest"
             >
               {isRefreshing ? (
-                <Spinner className="h-4 w-4" />
+                <Spinner className="h-[15px] w-[15px] text-[#6366f1]" />
               ) : (
                 <RefreshIcon />
               )}
@@ -153,7 +159,7 @@ export default function Home() {
 
       {/* Filter chips */}
       {domains.length > 0 && (
-        <div className="sticky top-[52px] z-10 bg-[#F8F9FA] border-b border-[#E8EAED]">
+        <div className="sticky top-[52px] z-10 bg-[#0f172a] border-b border-[#1e293b]">
           <DomainFilterChips
             domains={domains}
             active={activeDomain}
@@ -167,7 +173,7 @@ export default function Home() {
         {error && (
           <div
             role="alert"
-            className="mb-5 text-sm text-red-700 bg-red-50 border border-red-100 rounded-xl px-4 py-3"
+            className="mb-5 text-[13px] text-red-400 bg-red-950/50 border border-red-900/50 rounded-xl px-4 py-3"
           >
             {error}
           </div>
@@ -175,12 +181,12 @@ export default function Home() {
 
         {isLoading ? (
           <div className="flex justify-center py-24">
-            <Spinner className="h-5 w-5 text-[#94A3B8]" />
+            <Spinner className="h-5 w-5 text-[#334155]" />
           </div>
         ) : Object.keys(grouped).length === 0 ? (
           <EmptyState
             title="No digest yet"
-            subtitle="Trigger a refresh to fetch the latest AI developments."
+            subtitle="Hit the refresh button to fetch the latest AI developments."
           />
         ) : (
           <div className="space-y-8">
