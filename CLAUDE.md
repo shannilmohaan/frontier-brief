@@ -11,8 +11,8 @@
 | Field | Value |
 |-------|-------|
 | **Current Phase** | Phase 1 — MVP |
-| **Active Sub-phase** | 1b — Synthesis engine (in progress) |
-| **Next Action** | Run `ecc:python-reviewer` + `ecc:rag-pipeline-reviewer`, then commit and push |
+| **Active Sub-phase** | 1c — Web UI (in progress) |
+| **Next Action** | Implement components, run `ecc:react-reviewer` + `/frontier-ui-check` |
 
 > **Update this table at the start of every session and whenever a sub-phase completes.**
 

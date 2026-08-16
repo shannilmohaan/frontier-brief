@@ -1,5 +1,3 @@
-// Placeholder — full types added in Phase 1c
-
 export type ContentType = "video" | "paper" | "newsletter" | "blog" | "social" | "discussion";
 
 export type Domain =
