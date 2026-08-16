@@ -13,26 +13,25 @@ export function DomainFilterChips({ domains, active, onSelect }: DomainFilterChi
     <div
       role="group"
       aria-label="Filter by domain"
-      className="flex gap-2 px-4 py-2.5 overflow-x-auto hide-scrollbar"
+      className="flex gap-0 px-4 overflow-x-auto hide-scrollbar"
     >
-      <ChipButton active={active === null} onClick={() => onSelect(null)}>
+      <TabButton active={active === null} onClick={() => onSelect(null)}>
         All
-      </ChipButton>
-
+      </TabButton>
       {domains.map((domain) => (
-        <ChipButton
+        <TabButton
           key={domain}
           active={active === domain}
           onClick={() => onSelect(domain)}
         >
           {domain}
-        </ChipButton>
+        </TabButton>
       ))}
     </div>
   );
 }
 
-function ChipButton({
+function TabButton({
   active,
   onClick,
   children,
@@ -46,11 +45,11 @@ function ChipButton({
       onClick={onClick}
       aria-pressed={active}
       className={[
-        "shrink-0 px-3.5 rounded-full text-[12px] font-medium transition-all whitespace-nowrap",
-        "min-h-[34px]",
+        "shrink-0 px-3 py-3 text-[12px] font-medium transition-all whitespace-nowrap border-b-2",
+        "min-h-[44px]",
         active
-          ? "bg-[#6366f1] text-white"
-          : "bg-[#1e293b] border border-[#334155] text-[#64748b] hover:border-[#475569] hover:text-[#94a3b8]",
+          ? "text-[#f1f5f9] border-[#6366f1]"
+          : "text-[#475569] border-transparent hover:text-[#94a3b8]",
       ].join(" ")}
     >
       {children}

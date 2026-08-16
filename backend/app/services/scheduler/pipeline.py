@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 
 from app.core.config import settings
 from app.db.models import DigestCycle, DigestItem, SourceItem
-from app.services.fetchers.arxiv import ArxivFetcher
 from app.services.fetchers.base import FetchedItem
 from app.services.fetchers.hf_papers import HFPapersFetcher
 from app.services.fetchers.the_batch import TheBatchFetcher
@@ -54,9 +53,9 @@ async def _fetch_and_persist_sources(
         cycle.status = "running"
         await session.commit()
 
-        # arXiv and HF Papers publish in weekday batches — use a wider window so weekend
+        # HF Papers publishes in weekday batches — use a wider window so weekend
         # runs still find content (Friday papers are ~60h old on Sunday).
-        fetchers = [YouTubeFetcher(), ArxivFetcher(window_hours=96), TheBatchFetcher(), HFPapersFetcher(window_hours=96)]
+        fetchers = [YouTubeFetcher(), TheBatchFetcher(), HFPapersFetcher(window_hours=96)]
         raw_results = await asyncio.gather(*[f.fetch() for f in fetchers], return_exceptions=True)
 
         all_items: list[FetchedItem] = []
