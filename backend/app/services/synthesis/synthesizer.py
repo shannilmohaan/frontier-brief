@@ -32,8 +32,10 @@ def _group_by_domain(items: list[FetchedItem]) -> dict[str, list[FetchedItem]]:
     return {domain: domain_items[:_MAX_ITEMS_PER_DOMAIN] for domain, domain_items in groups.items()}
 
 
-def _extract_json(raw: str) -> str:
+def _extract_json(raw: str | None) -> str:
     """Extract the JSON array from Claude's response regardless of surrounding text or fences."""
+    if not raw:
+        return "[]"
     match = re.search(r"\[.*\]", raw, re.DOTALL)
     return match.group(0) if match else raw
 

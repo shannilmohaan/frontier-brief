@@ -93,8 +93,8 @@ class YouTubeFetcher(BaseFetcher):
             if not video_id:
                 continue
 
-            title = snippet.get("title", "")
-            description = snippet.get("description", "")[:600]
+            title = snippet.get("title") or ""
+            description = (snippet.get("description") or "")[:600]
             items.append(
                 FetchedItem(
                     title=title,

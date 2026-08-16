@@ -18,8 +18,8 @@ def make_user_prompt(domain: str, items: list[FetchedItem]) -> str:
     serialized = json.dumps(
         [
             {
-                "title": item.title[:_MAX_TITLE_LEN],
-                "summary": item.summary[:_MAX_SUMMARY_LEN],
+                "title": (item.title or "")[:_MAX_TITLE_LEN],
+                "summary": (item.summary or "")[:_MAX_SUMMARY_LEN],
                 "source_name": item.source_name,
                 "source_url": item.source_url,
             }
