@@ -1,6 +1,6 @@
 import type { DigestResponse, RefreshResponse } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
 
 export async function fetchLatestDigest(domain?: string): Promise<DigestResponse> {
   const url = new URL(`${API_URL}/api/digest/latest`);
