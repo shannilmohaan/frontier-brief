@@ -11,8 +11,8 @@
 | Field | Value |
 |-------|-------|
 | **Current Phase** | Phase 1 — MVP |
-| **Active Sub-phase** | 1a — Data pipeline (in progress) |
-| **Next Action** | User: push to GitHub, connect Railway/Vercel/Neon. Then: implement 4 fetchers + ranker |
+| **Active Sub-phase** | 1b — Synthesis engine (in progress) |
+| **Next Action** | Run `ecc:python-reviewer` + `ecc:rag-pipeline-reviewer`, then commit and push |
 
 > **Update this table at the start of every session and whenever a sub-phase completes.**
 
