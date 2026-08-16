@@ -40,3 +40,6 @@ alembic/versions/
 # OS
 .DS_Store
 Thumbs.db
+
+# scrathcpad and local references
+scrathcpad.md
