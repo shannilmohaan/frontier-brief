@@ -21,7 +21,7 @@ class TheBatchFetcher(BaseFetcher):
     async def fetch(self) -> list[FetchedItem]:
         cutoff = datetime.now(timezone.utc) - timedelta(hours=self._window_hours)
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
                 resp = await client.get(THE_BATCH_RSS_URL)
                 resp.raise_for_status()
                 content = resp.text
