@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
+from typing import Literal
+
+
+ContentType = Literal["video", "paper", "newsletter", "blog", "social", "discussion"]
 
 
 @dataclass
@@ -11,7 +15,7 @@ class FetchedItem:
     source_url: str
     domain_tags: list[str]
     published_at: datetime
-    content_type: str  # video | paper | newsletter | blog | social | discussion
+    content_type: ContentType
 
 
 class BaseFetcher(ABC):

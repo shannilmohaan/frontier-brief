@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -30,11 +30,13 @@ class DigestCycle(Base):
 
 class SourceItem(Base):
     __tablename__ = "source_items"
+    # Unique per cycle — the same URL can appear in consecutive overlapping windows
+    __table_args__ = (UniqueConstraint("cycle_id", "source_url", name="uq_source_items_cycle_url"),)
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     cycle_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("digest_cycles.id"), nullable=False)
     source_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    source_url: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    source_url: Mapped[str] = mapped_column(Text, nullable=False)
     title: Mapped[str] = mapped_column(Text, nullable=False)
     raw_content: Mapped[str] = mapped_column(Text, nullable=False)
     content_type: Mapped[str] = mapped_column(String(20), nullable=False)
