@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     max_items_per_domain: int = 10
 
     # Comma-separated allowed CORS origins (e.g. "https://frontier-brief.vercel.app")
-    cors_origins: str = "https://frontier-brief.vercel.app"
+    cors_origins: str = ""
 
     environment: str = "production"
 

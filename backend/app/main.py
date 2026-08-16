@@ -19,7 +19,7 @@ app = FastAPI(title="Frontier Brief API", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
+    allow_origins=settings.cors_origins_list or ["*"],
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["X-Refresh-Key"],
