@@ -104,11 +104,9 @@ export default function Home() {
     }
   };
 
-  const domains = [
-    ...new Set(
-      items.flatMap((item) => item.domain_tags).filter(Boolean) as Domain[]
-    ),
-  ];
+  const domains = Array.from(
+    new Set(items.flatMap((item) => item.domain_tags).filter(Boolean) as Domain[])
+  );
 
   const filteredItems = activeDomain
     ? items.filter((item) => item.domain_tags.includes(activeDomain))
