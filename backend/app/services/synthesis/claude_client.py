@@ -45,4 +45,9 @@ async def complete(system: str, user: str) -> str:
     blocks = message.content
     if not blocks or not isinstance(blocks[0], TextBlock):
         raise ValueError(f"Unexpected response content from Claude: {blocks!r}")
-    return blocks[0].text
+    text = blocks[0].text
+    if not text:
+        raise ValueError(
+            f"Claude returned empty/null text; stop_reason={message.stop_reason!r}"
+        )
+    return text

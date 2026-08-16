@@ -80,4 +80,5 @@ class ArxivFetcher(BaseFetcher):
                 logger.warning("Skipping arXiv entry due to parse error: %s", exc)
                 continue
 
+        logger.info("arXiv: %d items in last %dh window", len(items), self._window_hours)
         return items

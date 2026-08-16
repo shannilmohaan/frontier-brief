@@ -54,7 +54,9 @@ async def _fetch_and_persist_sources(
         cycle.status = "running"
         await session.commit()
 
-        fetchers = [YouTubeFetcher(), ArxivFetcher(), TheBatchFetcher(), HFPapersFetcher()]
+        # arXiv and HF Papers publish in weekday batches — use a wider window so weekend
+        # runs still find content (Friday papers are ~60h old on Sunday).
+        fetchers = [YouTubeFetcher(), ArxivFetcher(window_hours=96), TheBatchFetcher(), HFPapersFetcher(window_hours=96)]
         raw_results = await asyncio.gather(*[f.fetch() for f in fetchers], return_exceptions=True)
 
         all_items: list[FetchedItem] = []

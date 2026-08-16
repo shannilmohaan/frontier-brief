@@ -35,6 +35,7 @@ class HFPapersFetcher(BaseFetcher):
                 except Exception as exc:
                     logger.error("HF Papers fetch failed for %s: %s", date, exc)
 
+        logger.info("HF Papers: %d items in last %dh window", len(items), self._window_hours)
         return items
 
 

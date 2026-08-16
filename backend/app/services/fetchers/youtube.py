@@ -94,6 +94,8 @@ class YouTubeFetcher(BaseFetcher):
                 continue
 
             title = snippet.get("title") or ""
+            if not title:
+                continue  # private/deleted video — no usable content
             description = (snippet.get("description") or "")[:600]
             items.append(
                 FetchedItem(

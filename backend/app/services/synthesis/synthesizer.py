@@ -84,10 +84,9 @@ def _parse_response(raw: str, fetched_by_url: dict[str, FetchedItem]) -> list[Sy
 
 async def _synthesize_domain(domain: str, items: list[FetchedItem]) -> list[SynthesizedItem]:
     fetched_by_url = {item.source_url: item for item in items}
-    logger.warning("Synthesizing domain '%s' with %d items: %r", domain, len(items), list(fetched_by_url.keys())[:3])
+    logger.info("Synthesizing domain '%s' with %d items", domain, len(items))
     user_prompt = make_user_prompt(domain, items)
     raw = await claude_client.complete(SYSTEM_PROMPT, user_prompt)
-    logger.warning("Claude raw response for '%s' (first 400 chars): %.400s", domain, raw)
     return _parse_response(raw, fetched_by_url)
 
 
