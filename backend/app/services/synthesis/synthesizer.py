@@ -22,6 +22,8 @@ class SynthesizedItem:
     content_type: ContentType
     domain_tags: list[str]
     published_at: datetime
+    why_it_matters: str = ""
+    importance: int = 3
 
 
 def _group_by_domain(items: list[FetchedItem]) -> dict[str, list[FetchedItem]]:
@@ -67,6 +69,11 @@ def _parse_response(raw: str, fetched_by_url: dict[str, FetchedItem]) -> list[Sy
         fetched = fetched_by_url[url]
         # Truncate before citation to limit prompt-injection blast radius
         narrative = narrative[:1000]
+        why_it_matters = str(element.get("why_it_matters", "") or "")[:500].strip()
+        try:
+            importance = max(1, min(5, int(element.get("importance", 3))))
+        except (TypeError, ValueError):
+            importance = 3
         # Citation is appended deterministically — not left to Claude — to guarantee accuracy.
         cited_narrative = f"{narrative.rstrip()}\n\nSource: [{fetched.source_name}]({url})"
         results.append(
@@ -77,6 +84,8 @@ def _parse_response(raw: str, fetched_by_url: dict[str, FetchedItem]) -> list[Sy
                 content_type=fetched.content_type,
                 domain_tags=fetched.domain_tags,
                 published_at=fetched.published_at,
+                why_it_matters=why_it_matters,
+                importance=importance,
             )
         )
     return results

@@ -60,6 +60,35 @@ def classify_domains(text: str) -> list[str]:
     ]
 
 
+# Source credibility tier (0.0–1.0). Used as a 10% weight modifier.
+# Tier 1: official lab blogs, peer-reviewed papers → 1.0
+# Tier 2: expert curated newsletters / podcasts → 0.75–0.85
+# Tier 3: general web / unknown → 0.5 (default)
+_SOURCE_CREDIBILITY: dict[str, float] = {
+    "OpenAI Blog": 1.0,
+    "Anthropic Blog": 1.0,
+    "Google DeepMind Blog": 1.0,
+    "Meta AI Blog": 1.0,
+    "Microsoft AI Blog": 1.0,
+    "NVIDIA Blog": 1.0,
+    "Mistral AI Blog": 1.0,
+    "arXiv": 0.95,
+    "Hugging Face Papers": 0.90,
+    "The Batch": 0.85,
+    "Import AI": 0.85,
+    "Ahead of AI": 0.85,
+    "Interconnects": 0.85,
+    "Latent Space": 0.80,
+    "Practical AI": 0.80,
+    "Lex Fridman Podcast": 0.75,
+    "TWIML AI Podcast": 0.75,
+    "Last Week in AI": 0.75,
+    "Ben's Bites": 0.70,
+    "Google News": 0.65,
+}
+_DEFAULT_CREDIBILITY = 0.5
+
+
 _TYPE_BOOST: dict[str, float] = {
     "podcast": 0.1,
     "video": 0.05,
@@ -81,8 +110,12 @@ def _relevance_score(item: FetchedItem, now: datetime) -> float:
     domain_match = min(1.0, len(item.domain_tags) * 0.3)
     social = getattr(item, "social_score", 0.0)
     type_boost = _TYPE_BOOST.get(item.content_type, 0.0)
+    credibility = _SOURCE_CREDIBILITY.get(item.source_name, _DEFAULT_CREDIBILITY)
     base = social * 0.35 + recency * 0.30 + domain_match * 0.25
-    return min(1.0, max(0.0, base + type_boost * 0.10))
+    raw = base + type_boost * 0.10
+    # Credibility adjusts final score by up to ±10%: credibility=1.0 → ×1.0, credibility=0.5 → ×0.95
+    credibility_factor = 0.90 + 0.10 * credibility
+    return min(1.0, max(0.0, raw * credibility_factor))
 
 
 def rank_and_cap(

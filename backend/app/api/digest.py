@@ -20,6 +20,8 @@ class DigestItemSchema(BaseModel):
     id: uuid.UUID
     source_title: str
     narrative: str
+    why_it_matters: str | None = None
+    importance: int = 3
     source_name: str
     source_url: str
     content_type: str
@@ -110,6 +112,8 @@ async def get_latest_digest(
                 id=row.id,
                 source_title=row.source_item.title if row.source_item else "",
                 narrative=row.narrative,
+                why_it_matters=row.why_it_matters,
+                importance=row.importance,
                 source_name=row.source_name,
                 source_url=row.source_url,
                 content_type=row.content_type,

@@ -59,6 +59,8 @@ class DigestItem(Base):
         UUID(as_uuid=True), ForeignKey("source_items.id"), nullable=False
     )
     narrative: Mapped[str] = mapped_column(Text, nullable=False)
+    why_it_matters: Mapped[str | None] = mapped_column(Text, nullable=True)
+    importance: Mapped[int] = mapped_column(Integer, default=3)
     source_name: Mapped[str] = mapped_column(String(100), nullable=False)
     source_url: Mapped[str] = mapped_column(Text, nullable=False)
     content_type: Mapped[str] = mapped_column(String(20), nullable=False)

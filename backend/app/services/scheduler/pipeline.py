@@ -121,6 +121,8 @@ async def _persist_digest_items(
                     cycle_id=cycle_id,
                     source_item_id=source_item.id,
                     narrative=synth.narrative,
+                    why_it_matters=synth.why_it_matters or None,
+                    importance=synth.importance,
                     source_name=synth.source_name,
                     source_url=synth.source_url,
                     content_type=synth.content_type,
