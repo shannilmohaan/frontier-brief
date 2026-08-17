@@ -8,7 +8,6 @@ from app.db.models import DigestCycle, DigestItem, SourceItem
 from app.services.fetchers.base import FetchedItem
 from app.services.fetchers.google_news import GoogleNewsFetcher
 from app.services.fetchers.podcast_rss import PodcastRssFetcher
-from app.services.fetchers.reddit import RedditFetcher
 from app.services.fetchers.web_articles import WebArticlesFetcher
 from app.services.fetchers.youtube import YouTubeFetcher
 from app.services.ranker import rank_and_cap, score_item
@@ -64,7 +63,6 @@ async def _fetch_and_persist_sources(
             WebArticlesFetcher(window_hours=168),
             GoogleNewsFetcher(window_hours=168),
             PodcastRssFetcher(window_hours=168),
-            RedditFetcher(window_hours=168),
         ]
         raw_results = await asyncio.gather(*[f.fetch() for f in fetchers], return_exceptions=True)
 

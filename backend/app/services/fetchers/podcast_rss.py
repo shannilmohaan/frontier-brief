@@ -13,12 +13,13 @@ from app.services.ranker import classify_domains
 logger = logging.getLogger(__name__)
 
 PODCAST_FEEDS: list[tuple[str, str]] = [
-    ("https://lexfridman.com/feed/podcast/",                                "Lex Fridman Podcast"),
-    ("https://twimlai.com/feed/",                                           "TWIML AI Podcast"),
-    ("https://www.latent.space/feed",                                       "Latent Space"),
-    ("https://feeds.transistor.fm/cognitive-revolution",                    "The Cognitive Revolution"),
-    ("https://practicalai.fm/rss",                                          "Practical AI"),
-    ("https://feeds.megaphone.fm/all-in-with-chamath-jason-sacks-friedberg","All-In Podcast"),
+    ("https://lexfridman.com/feed/podcast/",                                     "Lex Fridman Podcast"),
+    ("https://twimlai.com/feed/",                                                "TWIML AI Podcast"),
+    ("https://www.latent.space/feed",                                            "Latent Space"),
+    ("https://feeds.megaphone.fm/thecognitiverevolution",                        "The Cognitive Revolution"),
+    ("https://practicalai.fm/rss",                                               "Practical AI"),
+    ("https://feeds.megaphone.fm/MVGL5419703595",                                "All-In Podcast"),
+    ("https://rss.art19.com/no-priors",                                          "No Priors"),
 ]
 _HTML_TAG = re.compile(r"<[^>]+>")
 
