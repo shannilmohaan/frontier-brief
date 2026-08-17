@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 FEEDS: list[tuple[str, str, str]] = [
     # === Official AI lab blogs (Tier 1) ===
     ("https://openai.com/news/rss.xml",                                    "OpenAI",                "blog"),
-    ("https://www.anthropic.com/rss.xml",                                  "Anthropic",             "blog"),
     ("https://blog.google/technology/ai/rss/",                             "Google AI Blog",        "blog"),
     ("https://aws.amazon.com/blogs/machine-learning/feed/",                "AWS ML Blog",           "blog"),
     ("https://huggingface.co/blog/feed.xml",                               "Hugging Face Blog",     "blog"),
@@ -26,12 +25,12 @@ FEEDS: list[tuple[str, str, str]] = [
     # === High-signal practitioner blogs (Tier 1 independent) ===
     ("https://simonwillison.net/atom/everything/",                         "Simon Willison",        "blog"),
     ("https://huyenchip.com/feed.xml",                                     "Chip Huyen",            "blog"),
-    ("https://eugeneyan.com/feed.xml",                                     "Eugene Yan",            "blog"),
-    ("https://hamel.dev/feed.xml",                                         "Hamel Husain",          "blog"),
+    ("https://eugeneyan.com/atom.xml",                                     "Eugene Yan",            "blog"),
+    ("https://hamel.dev/index.xml",                                        "Hamel Husain",          "blog"),
 
     # === Framework / ecosystem blogs (Tier 2 vendor) ===
     ("https://blog.langchain.dev/rss/",                                    "LangChain Blog",        "blog"),
-    ("https://www.llamaindex.ai/blog/rss.xml",                             "LlamaIndex Blog",       "blog"),
+    ("https://blog.llamaindex.ai/rss/",                                    "LlamaIndex Blog",       "blog"),
 
     # === Curated newsletters ===
     ("https://importai.substack.com/feed",                                 "Import AI",             "newsletter"),
@@ -39,11 +38,11 @@ FEEDS: list[tuple[str, str, str]] = [
     ("https://www.latent.space/feed",                                      "Latent Space",          "newsletter"),
     ("https://www.interconnects.ai/feed",                                  "Interconnects",         "newsletter"),
     ("https://lastweekin.ai/feed",                                         "Last Week in AI",       "newsletter"),
-    ("https://bensbites.beehiiv.com/feed",                                 "Ben's Bites",           "newsletter"),
+    ("https://bensbites.beehiiv.com/feed.xml",                             "Ben's Bites",           "newsletter"),
 
     # === Industry news ===
     ("https://techcrunch.com/category/artificial-intelligence/feed/",      "TechCrunch AI",         "blog"),
-    ("https://a16z.com/category/ai/feed/",                                 "a16z AI",               "blog"),
+    ("https://a16z.com/feed/",                                             "a16z AI",               "blog"),
 ]
 
 _HTML_TAG = re.compile(r"<[^>]+>")

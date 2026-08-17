@@ -5,62 +5,72 @@ from app.services.fetchers.base import FetchedItem
 # Content taxonomy aligned to frontier-ai-specs.md §9
 DOMAIN_KEYWORDS: dict[str, list[str]] = {
     "Agentic AI": [
-        "agent", "agentic", "autonomous agent", "multi-agent", "mcp",
-        "model context protocol", "tool calling", "tool use", "function calling",
-        "memory", "context engineering", "orchestration", "agent framework",
-        "agent skills", "agent workflow", "self-improving", "agent orchestration",
-        "hub-and-spoke", "multi-agent system",
+        "agentic workflow", "multi-agent", "multiagent", "agent orchestration",
+        "agent framework", "agent loop", "agent tool", "tool calling", "function calling",
+        "mcp server", "mcp protocol", "model context protocol", "computer use",
+        "browser use", "autonomous agent", "ai agent system", "agent architecture",
+        "openai agents sdk", "langchain agent", "langgraph", "autogen", "crewai",
+        "pydantic ai", "smolagents",
     ],
     "AI Architecture": [
-        "rag", "retrieval augmented", "agentic rag", "workflow pattern",
-        "event-driven", "human-in-the-loop", "integration pattern",
-        "application architecture", "vector database", "embedding", "chunking",
-        "pgvector", "pinecone", "weaviate", "qdrant", "chroma",
+        "rag", "retrieval augmented", "agentic rag", "vector database", "vector store",
+        "embeddings", "semantic search", "knowledge graph", "context window",
+        "long context", "context engineering", "memory system", "chunking strategy",
+        "reranking", "hybrid search", "pgvector", "pinecone", "weaviate", "chroma",
+        "structured output", "json mode", "tool use pattern",
     ],
     "AI Engineering": [
-        "sdk", "langchain", "llamaindex", "llm api", "prompting",
-        "evaluation", "evals", "observability", "guardrails", "ai security",
-        "tracing", "weave", "braintrust", "context window",
-        "prompt engineering", "structured output", "openai sdk", "anthropic sdk",
+        "llm evaluation", "evals", "observability", "tracing", "langsmith", "arize",
+        "llm ops", "mlops", "llmops", "prompt engineering", "system prompt",
+        "few-shot", "chain of thought", "prompt template", "langchain",
+        "llamaindex", "llm api", "rate limit", "token budget", "cost optimization api",
+        "openai sdk", "anthropic sdk", "structured generation",
     ],
     "AI Coding": [
-        "codex", "claude code", "cursor", "github copilot", "coding agent",
-        "agentic software", "agentic development", "swe-bench", "devin",
-        "ai coder", "automated coding", "ai programming", "ai developer",
-        "vibe coding", "windsurf", "ai coding", "code generation",
+        "codex", "claude code", "cursor", "github copilot", "codewhisperer",
+        "coding agent", "code generation", "code completion", "code review ai",
+        "devin", "software engineering agent", "swe-bench", "aider",
+        "ai pair programming", "vibe coding", "windsurf", "bolt.new",
     ],
     "Production AI": [
-        "deployment", "scalability", "reliability", "cost optimization",
-        "inference cost", "latency", "governance", "monitoring", "enterprise",
-        "production", "mlops", "vllm", "ollama", "triton", "batch inference",
-        "throughput", "compliance", "edge deployment", "serving",
+        "production deployment", "inference latency", "throughput", "scalability",
+        "reliability", "cost per token", "token cost", "batch inference",
+        "model serving", "triton", "vllm", "tgi", "sagemaker", "guardrails",
+        "content moderation", "safety filter", "hallucination detection",
+        "groundedness", "monitoring production", "a/b testing llm",
     ],
     "Models": [
-        "gpt-4", "gpt-5", "claude 3", "claude 4", "claude 5", "gemini",
-        "llama", "mistral", "phi-", "qwen", "model release", "new model",
-        "multimodal", "vision model", "reasoning model", "o1", "o3",
-        "thinking model", "context window", "foundation model",
+        "gpt-4", "gpt-5", "o1", "o3", "o4", "claude 3", "claude 4", "claude sonnet",
+        "claude opus", "gemini", "llama", "mistral", "qwen", "deepseek",
+        "model release", "model benchmark", "model weights", "open weights",
+        "foundation model", "multimodal model", "vision model", "reasoning model",
+        "model capabilities", "context length", "model fine-tuning", "lora", "qlora",
     ],
     "AI Applications": [
         "llm application", "enterprise ai", "ai assistant", "ai search",
-        "ai automation", "chatbot", "virtual assistant", "ai product", "copilot",
+        "ai product", "ai feature", "ai workflow", "ai integration",
+        "customer support ai", "chatbot", "copilot product",
+        "ai tool", "ai platform",
     ],
     "Industry": [
-        "funding", "acquisition", "partnership", "open source release",
-        "policy", "regulation", "ai safety", "responsible ai",
-        "research breakthrough", "series a", "series b", "ipo",
+        "funding", "series a", "series b", "valuation", "acquisition", "merger",
+        "partnership", "open source release", "regulation", "ai policy", "ai act",
+        "antitrust", "ipo", "startup", "venture capital", "revenue", "enterprise deal",
+        "ai company", "ai lab",
     ],
 }
 
 
 def classify_domains(text: str) -> list[str]:
-    """Keyword-based domain classification. Returns [] if no match."""
+    """Keyword-based domain classification. Scores by match count so primary domain is best fit."""
     text_lower = text.lower()
-    return [
-        domain
-        for domain, keywords in DOMAIN_KEYWORDS.items()
-        if any(kw in text_lower for kw in keywords)
-    ]
+    scores: list[tuple[int, str]] = []
+    for domain, keywords in DOMAIN_KEYWORDS.items():
+        count = sum(1 for kw in keywords if kw in text_lower)
+        if count > 0:
+            scores.append((count, domain))
+    scores.sort(key=lambda x: x[0], reverse=True)
+    return [domain for _, domain in scores] or ["Industry"]
 
 
 # Source credibility — keys match source_name values emitted by fetchers exactly.
