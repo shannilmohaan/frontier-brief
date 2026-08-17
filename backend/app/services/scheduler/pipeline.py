@@ -28,10 +28,10 @@ async def run_pipeline(cycle_id: uuid.UUID, session_factory) -> None:
             cycle_id, session_factory
         )
         ranked = rank_and_cap(all_items, max_per_domain=settings.max_items_per_domain)
-        # Drop items with no summary — Claude can't write a useful digest entry from a title alone.
-        synthesizable = [item for item in ranked if item.summary and item.summary.strip()]
-        if len(synthesizable) < len(ranked):
-            logger.info("Dropped %d item(s) with empty summary before synthesis", len(ranked) - len(synthesizable))
+        # Drop items with too-thin summaries — feeds like Google News often give
+        # "Publisher · 2 hours ago" as description; Claude needs real content.
+        synthesizable = [item for item in ranked if item.summary and len(item.summary.strip()) >= 80]
+        logger.info("Synthesizable after content-quality filter: %d / %d ranked", len(synthesizable), len(ranked))
         synthesized = await synthesize(synthesizable)  # External API — no DB connection held
         await _persist_digest_items(cycle_id, synthesized, source_items_by_url, scores_by_url, len(all_items), session_factory)
     except Exception as exc:

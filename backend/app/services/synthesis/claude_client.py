@@ -9,8 +9,8 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 _MODEL = "claude-sonnet-5"
-_MAX_TOKENS = 2048
-_TIMEOUT_SECONDS = 30.0
+_MAX_TOKENS = 4096
+_TIMEOUT_SECONDS = 60.0
 
 _client: anthropic.AsyncAnthropic | None = None
 
@@ -46,8 +46,11 @@ async def complete(system: str, user: str) -> str:
     if not blocks or not isinstance(blocks[0], TextBlock):
         raise ValueError(f"Unexpected response content from Claude: {blocks!r}")
     text = blocks[0].text
-    if not text:
+    if text is None:
         raise ValueError(
-            f"Claude returned empty/null text; stop_reason={message.stop_reason!r}"
+            f"Claude returned null text block; stop_reason={message.stop_reason!r}"
         )
+    if not text.strip():
+        logger.warning("Claude returned empty text; stop_reason=%r — treating as no items", message.stop_reason)
+        return "[]"
     return text
