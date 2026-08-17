@@ -10,9 +10,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Current Phase** | Phase 1 — MVP |
-| **Active Sub-phase** | 1d — Pipeline wiring (in progress) |
-| **Next Action** | Run `ecc:python-reviewer`, `ecc:fastapi-reviewer`, `ecc:security-reviewer` → push to GitHub → test via live URLs → `/frontier-phase-gate` |
+| **Current Phase** | Phase 2 — Full Product Pivot |
+| **Active Sub-phase** | 2a — Align to frontier-ai-specs.md (in progress) |
+| **Next Action** | After push: trigger refresh → verify new taxonomy + synthesis fields in digest → run `/frontier-ui-check` → run `/frontier-digest-review` |
 
 > **Update this table at the start of every session and whenever a sub-phase completes.**
 

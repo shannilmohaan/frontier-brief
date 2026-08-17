@@ -31,13 +31,17 @@
   --badge-paper-text: #94a3b8;
   --badge-social-bg: rgba(14, 165, 233, 0.12);
   --badge-social-text: #7dd3fc;
+  /* Build Impact colors */
+  --impact-very-high: #f87171;
+  --impact-high: #fbbf24;
+  --impact-medium: #93c5fd;
+  --impact-low: #94a3b8;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-/* Smooth card hover lift */
 .card-lift {
   transition: transform 150ms ease, border-color 150ms ease;
 }

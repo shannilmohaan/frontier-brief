@@ -2,50 +2,53 @@ from datetime import datetime, timezone
 
 from app.services.fetchers.base import FetchedItem
 
+# Content taxonomy aligned to frontier-ai-specs.md §9
 DOMAIN_KEYWORDS: dict[str, list[str]] = {
     "Agentic AI": [
-        "agent", "agentic", "autonomous agent", "multi-agent", "agent framework",
-        "llm agent", "ai agent", "agentic workflow", "self-improving",
+        "agent", "agentic", "autonomous agent", "multi-agent", "mcp",
+        "model context protocol", "tool calling", "tool use", "function calling",
+        "memory", "context engineering", "orchestration", "agent framework",
+        "agent skills", "agent workflow", "self-improving", "agent orchestration",
+        "hub-and-spoke", "multi-agent system",
     ],
-    "New Model Capabilities": [
-        "gpt-4", "gpt-5", "claude 3", "claude 4", "gemini", "llama", "mistral",
-        "phi-", "qwen", "model release", "new model", "multimodal", "vision model",
-        "foundation model", "language model",
+    "AI Architecture": [
+        "rag", "retrieval augmented", "agentic rag", "workflow pattern",
+        "event-driven", "human-in-the-loop", "integration pattern",
+        "application architecture", "vector database", "embedding", "chunking",
+        "pgvector", "pinecone", "weaviate", "qdrant", "chroma",
     ],
-    "Context Management": [
-        "context window", "long context", "context length", "retrieval augmented",
-        "retrieval-augmented", "rag", "128k", "context size", "infinite context",
+    "AI Engineering": [
+        "sdk", "langchain", "llamaindex", "llm api", "prompting",
+        "evaluation", "evals", "observability", "guardrails", "ai security",
+        "tracing", "weave", "braintrust", "context window",
+        "prompt engineering", "structured output", "openai sdk", "anthropic sdk",
     ],
-    "Token Economics": [
-        "token cost", "pricing", "cost per token", "token efficiency", "compression",
-        "quantization", "cheaper inference", "token budget", "inference cost",
+    "AI Coding": [
+        "codex", "claude code", "cursor", "github copilot", "coding agent",
+        "agentic software", "agentic development", "swe-bench", "devin",
+        "ai coder", "automated coding", "ai programming", "ai developer",
+        "vibe coding", "windsurf", "ai coding", "code generation",
     ],
-    "Tool Use & Function Calling": [
-        "tool use", "tool calling", "function calling", "tool call", "plugins",
-        "computer use", "mcp", "model context protocol", "api calling",
+    "Production AI": [
+        "deployment", "scalability", "reliability", "cost optimization",
+        "inference cost", "latency", "governance", "monitoring", "enterprise",
+        "production", "mlops", "vllm", "ollama", "triton", "batch inference",
+        "throughput", "compliance", "edge deployment", "serving",
     ],
-    "AI Coding Agents": [
-        "coding agent", "code generation", "devin", "cursor", "copilot",
-        "swe-bench", "software engineering agent", "ai coder", "code agent",
-        "automated coding", "ai programming", "github copilot",
+    "Models": [
+        "gpt-4", "gpt-5", "claude 3", "claude 4", "claude 5", "gemini",
+        "llama", "mistral", "phi-", "qwen", "model release", "new model",
+        "multimodal", "vision model", "reasoning model", "o1", "o3",
+        "thinking model", "context window", "foundation model",
     ],
-    "Reasoning & Planning": [
-        "reasoning", "chain of thought", "cot", "planning", "o1", "o3", "r1",
-        "thinking model", "step-by-step", "logical reasoning", "tree of thought",
-        "self-reflection", "inference-time compute",
+    "AI Applications": [
+        "llm application", "enterprise ai", "ai assistant", "ai search",
+        "ai automation", "chatbot", "virtual assistant", "ai product", "copilot",
     ],
-    "Agent Memory & Persistence": [
-        "memory", "long-term memory", "episodic memory", "persistence",
-        "memory module", "agent memory", "external memory", "memory augmented",
-    ],
-    "Applied AI Engineering": [
-        "deployment", "production", "mlops", "inference", "latency", "throughput",
-        "fine-tuning", "finetuning", "serving", "vllm", "ollama", "local llm",
-        "edge deployment", "batch inference", "triton",
-    ],
-    "AI Research": [
-        "paper", "research", "arxiv", "study", "experiment", "dataset", "evaluation",
-        "empirical", "ablation", "benchmark", "proposed method", "we propose",
+    "Industry": [
+        "funding", "acquisition", "partnership", "open source release",
+        "policy", "regulation", "ai safety", "responsible ai",
+        "research breakthrough", "series a", "series b", "ipo",
     ],
 }
 
@@ -60,10 +63,7 @@ def classify_domains(text: str) -> list[str]:
     ]
 
 
-# Source credibility tier (0.0–1.0). Used as a 10% weight modifier.
-# Tier 1: official lab blogs, peer-reviewed papers → 1.0
-# Tier 2: expert curated newsletters / podcasts → 0.75–0.85
-# Tier 3: general web / unknown → 0.5 (default)
+# Source credibility — keys match source_name values emitted by fetchers exactly.
 _SOURCE_CREDIBILITY: dict[str, float] = {
     # Tier 1 — official AI lab sources
     "OpenAI": 1.0,
@@ -104,16 +104,41 @@ _SOURCE_CREDIBILITY: dict[str, float] = {
 }
 _DEFAULT_CREDIBILITY = 0.5
 
+# 9-dimension scoring weights — per spec §13
+_W_APP_RELEVANCE = 0.20
+_W_PROD_USEFULNESS = 0.20
+_W_LEARNING_VALUE = 0.15
+_W_ARCH_IMPACT = 0.15
+_W_PRACTICALITY = 0.10
+_W_CREDIBILITY = 0.10
+_W_NOVELTY = 0.05
+_W_RECENCY = 0.03
+_W_POPULARITY = 0.02
 
-_TYPE_BOOST: dict[str, float] = {
-    "podcast": 0.1,
-    "video": 0.05,
-    "article": 0.0,
-    "newsletter": 0.0,
-    "blog": 0.0,
-    "discussion": -0.05,
-    "social": -0.05,
-    "paper": 0.0,
+# Per-domain scores for each dimension (0–1)
+_APP_RELEVANCE: dict[str, float] = {
+    "Agentic AI": 1.0, "AI Coding": 1.0, "Production AI": 0.9,
+    "AI Engineering": 0.9, "AI Architecture": 0.85, "Models": 0.7,
+    "AI Applications": 0.6, "Industry": 0.3,
+}
+_PROD_USEFULNESS: dict[str, float] = {
+    "Production AI": 1.0, "AI Coding": 0.85, "AI Engineering": 0.80,
+    "Agentic AI": 0.75, "AI Architecture": 0.70, "Models": 0.55,
+    "AI Applications": 0.45, "Industry": 0.25,
+}
+_ARCH_IMPACT: dict[str, float] = {
+    "AI Architecture": 1.0, "Agentic AI": 0.75, "AI Engineering": 0.55,
+    "Production AI": 0.50, "Models": 0.40, "AI Coding": 0.35,
+    "AI Applications": 0.30, "Industry": 0.15,
+}
+_PRACTICALITY: dict[str, float] = {
+    "AI Coding": 1.0, "AI Engineering": 0.90, "Production AI": 0.85,
+    "Agentic AI": 0.70, "AI Architecture": 0.60, "Models": 0.40,
+    "AI Applications": 0.50, "Industry": 0.20,
+}
+_LEARNING_VALUE_BY_TYPE: dict[str, float] = {
+    "video": 1.0, "blog": 0.90, "podcast": 0.85, "newsletter": 0.75,
+    "article": 0.65, "paper": 0.55, "social": 0.30, "discussion": 0.35,
 }
 
 
@@ -122,16 +147,30 @@ def _relevance_score(item: FetchedItem, now: datetime) -> float:
     if published.tzinfo is None:
         published = published.replace(tzinfo=timezone.utc)
     age_hours = max(0.0, (now - published).total_seconds() / 3600)
-    recency = max(0.0, 1.0 - age_hours / 168.0)  # 7-day decay window
-    domain_match = min(1.0, len(item.domain_tags) * 0.3)
-    social = getattr(item, "social_score", 0.0)
-    type_boost = _TYPE_BOOST.get(item.content_type, 0.0)
+    recency = max(0.0, 1.0 - age_hours / 168.0)
+
+    primary = item.domain_tags[0] if item.domain_tags else "Industry"
+    app_relevance = _APP_RELEVANCE.get(primary, 0.30)
+    prod_usefulness = _PROD_USEFULNESS.get(primary, 0.25)
+    arch_impact = _ARCH_IMPACT.get(primary, 0.15)
+    practicality = _PRACTICALITY.get(primary, 0.20)
+    learning_value = _LEARNING_VALUE_BY_TYPE.get(item.content_type, 0.50)
     credibility = _SOURCE_CREDIBILITY.get(item.source_name, _DEFAULT_CREDIBILITY)
-    base = social * 0.35 + recency * 0.30 + domain_match * 0.25
-    raw = base + type_boost * 0.10
-    # Credibility adjusts final score by up to ±10%: credibility=1.0 → ×1.0, credibility=0.5 → ×0.95
-    credibility_factor = 0.90 + 0.10 * credibility
-    return min(1.0, max(0.0, raw * credibility_factor))
+    novelty = recency  # proxy: newer content is more likely novel
+    popularity = min(1.0, getattr(item, "social_score", 0.0))
+
+    score = (
+        _W_APP_RELEVANCE * app_relevance
+        + _W_PROD_USEFULNESS * prod_usefulness
+        + _W_LEARNING_VALUE * learning_value
+        + _W_ARCH_IMPACT * arch_impact
+        + _W_PRACTICALITY * practicality
+        + _W_CREDIBILITY * credibility
+        + _W_NOVELTY * novelty
+        + _W_RECENCY * recency
+        + _W_POPULARITY * popularity
+    )
+    return min(1.0, max(0.0, score))
 
 
 def rank_and_cap(
@@ -157,7 +196,7 @@ def rank_and_cap(
     result: list[FetchedItem] = []
     for item in unique:
         if not item.domain_tags:
-            item.domain_tags = ["AI Research"]
+            item.domain_tags = ["Industry"]
         primary = item.domain_tags[0]
         source = item.source_name
         if (

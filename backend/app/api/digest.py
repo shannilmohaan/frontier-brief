@@ -21,6 +21,10 @@ class DigestItemSchema(BaseModel):
     source_title: str
     narrative: str
     why_it_matters: str | None = None
+    what_changed: str | None = None
+    who_should_care: str | None = None
+    build_impact: str | None = None
+    production_readiness: str | None = None
     importance: int = 3
     source_name: str
     source_url: str
@@ -113,6 +117,10 @@ async def get_latest_digest(
                 source_title=row.source_item.title if row.source_item else "",
                 narrative=row.narrative,
                 why_it_matters=row.why_it_matters,
+                what_changed=row.what_changed,
+                who_should_care=row.who_should_care,
+                build_impact=row.build_impact,
+                production_readiness=row.production_readiness,
                 importance=row.importance,
                 source_name=row.source_name,
                 source_url=row.source_url,

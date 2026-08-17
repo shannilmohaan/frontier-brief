@@ -10,13 +10,37 @@ import { SkeletonSection } from "@/components/ui/SkeletonCard";
 import { fetchLatestDigest, fetchHistory, pollRefreshStatus, triggerRefresh } from "@/lib/api";
 import type { CycleInfo, DigestItem, Domain } from "@/lib/types";
 
+// Task-oriented tabs — each maps to a domain or a content filter
+// Per spec §8 and the homepage section order from spec §21
+type NavTab = "today" | "build" | "agents" | "architecture" | "ai-coding" | "production" | "tools" | "learn";
+
+const NAV_TABS: { id: NavTab; label: string; domain?: Domain; contentFilter?: (i: DigestItem) => boolean }[] = [
+  { id: "today",        label: "Today" },
+  { id: "build",        label: "Build",        domain: "AI Applications" },
+  { id: "agents",       label: "Agents",       domain: "Agentic AI" },
+  { id: "architecture", label: "Architecture", domain: "AI Architecture" },
+  { id: "ai-coding",    label: "AI Coding",    domain: "AI Coding" },
+  { id: "production",   label: "Production",   domain: "Production AI" },
+  { id: "tools",        label: "Tools",        domain: "AI Engineering" },
+  { id: "learn",        label: "Learn",        contentFilter: (i) => i.content_type === "video" || i.content_type === "podcast" || i.content_type === "newsletter" },
+];
+
+// Homepage section order per spec §21
+const SECTION_ORDER: Domain[] = [
+  "AI Coding",
+  "Agentic AI",
+  "AI Architecture",
+  "Production AI",
+  "AI Engineering",
+  "Models",
+  "AI Applications",
+  "Industry",
+];
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+    weekday: "short", month: "long", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
   });
 }
 
@@ -56,8 +80,8 @@ function Spinner({ className = "" }: { className?: string }) {
 
 export default function Home() {
   const [items, setItems] = useState<DigestItem[]>([]);
+  const [activeTab, setActiveTab] = useState<NavTab>("today");
   const [activeDomain, setActiveDomain] = useState<Domain | null>(null);
-  const [activeTab, setActiveTab] = useState<"today" | "videos" | "podcasts">("today");
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,6 +131,7 @@ export default function Home() {
     if (index < 0 || index >= cycles.length) return;
     setCurrentCycleIndex(index);
     setActiveDomain(null);
+    setActiveTab("today");
     await loadDigest(cycles[index].id);
   }, [cycles, loadDigest]);
 
@@ -129,6 +154,7 @@ export default function Home() {
           setCycles(data.cycles);
           setCurrentCycleIndex(0);
           setActiveDomain(null);
+          setActiveTab("today");
           await loadDigest(data.cycles[0]?.id);
           break;
         }
@@ -138,9 +164,7 @@ export default function Home() {
           break;
         }
       }
-      if (!finished && mountedRef.current) {
-        setError("Still processing — check back in a minute.");
-      }
+      if (!finished && mountedRef.current) setError("Still processing — check back in a minute.");
     } catch {
       if (mountedRef.current) setError("Refresh failed. Please try again.");
     } finally {
@@ -148,35 +172,43 @@ export default function Home() {
     }
   };
 
-  // Filter items by active tab first, then by domain
-  const tabFiltered = activeTab === "videos"
-    ? items.filter((i) => i.content_type === "video")
-    : activeTab === "podcasts"
-      ? items.filter((i) => i.content_type === "podcast")
-      : items;
+  // Apply tab filter
+  const currentTabDef = NAV_TABS.find((t) => t.id === activeTab)!;
+  const tabFiltered = (() => {
+    if (currentTabDef.domain) return items.filter((i) => i.domain_tags.includes(currentTabDef.domain!));
+    if (currentTabDef.contentFilter) return items.filter(currentTabDef.contentFilter);
+    return items; // "today" = all
+  })();
 
+  // Apply secondary domain chip filter
   const domainFiltered = activeDomain
     ? tabFiltered.filter((i) => i.domain_tags.includes(activeDomain))
     : tabFiltered;
 
+  // Available domains for chip strip (from currently visible items)
   const domains = Array.from(
     new Set(tabFiltered.flatMap((i) => i.domain_tags).filter(Boolean) as Domain[])
   );
 
-  // Hero = highest relevance_score item; rest go into domain sections
+  // Hero = highest relevance_score item in filtered set
   const heroItem = domainFiltered[0] ?? null;
   const remainingItems = domainFiltered.slice(1);
 
+  // Group remaining items by domain, then sort groups by SECTION_ORDER
   const grouped = remainingItems.reduce<Record<string, DigestItem[]>>((acc, item) => {
-    const domain = item.domain_tags[0] ?? "AI";
+    const domain = item.domain_tags[0] ?? "Industry";
     acc[domain] = [...(acc[domain] ?? []), item];
     return acc;
   }, {});
 
+  const sortedSections = [
+    ...SECTION_ORDER.filter((d) => grouped[d]),
+    ...Object.keys(grouped).filter((d) => !SECTION_ORDER.includes(d as Domain)),
+  ];
+
   const currentCycle = cycles[currentCycleIndex] ?? null;
   const canGoOlder = currentCycleIndex < cycles.length - 1;
   const canGoNewer = currentCycleIndex > 0;
-
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   return (
@@ -185,12 +217,9 @@ export default function Home() {
       {/* Header */}
       <header
         className="sticky top-0 z-20 backdrop-blur-md"
-        style={{
-          background: "rgba(8,9,14,0.90)",
-          borderBottom: "1px solid var(--border)",
-        }}
+        style={{ background: "rgba(8,9,14,0.90)", borderBottom: "1px solid var(--border)" }}
       >
-        <div className="max-w-[900px] mx-auto px-4">
+        <div className="max-w-[960px] mx-auto px-4">
           {/* Top bar */}
           <div className="h-[52px] flex items-center justify-between">
             <button
@@ -204,15 +233,15 @@ export default function Home() {
             >
               <span
                 className="text-[13px] font-bold tracking-[0.15em] uppercase"
-                style={{ color: "var(--text-primary)", letterSpacing: "0.12em" }}
+                style={{ color: "var(--text-primary)" }}
               >
                 Frontier Brief
               </span>
               <span
-                className="text-[10px] font-medium px-1.5 py-0.5 rounded"
+                className="text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-widest"
                 style={{ background: "var(--surface-raised)", color: "var(--text-muted)" }}
               >
-                AI
+                AI Builder
               </span>
             </button>
 
@@ -226,11 +255,7 @@ export default function Home() {
                 onClick={handleRefresh}
                 disabled={isRefreshing || isLoading}
                 className="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-lg transition-all disabled:opacity-30 min-h-[36px]"
-                style={{
-                  color: "var(--text-secondary)",
-                  border: "1px solid var(--border)",
-                  background: "var(--surface)",
-                }}
+                style={{ color: "var(--text-secondary)", border: "1px solid var(--border)", background: "var(--surface)" }}
                 aria-label="Refresh digest"
               >
                 {isRefreshing ? (
@@ -243,28 +268,28 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Nav tabs */}
+          {/* Nav tabs — task-oriented per spec §8 */}
           <div className="flex gap-0 overflow-x-auto hide-scrollbar border-t" style={{ borderColor: "var(--border-muted)" }}>
-            {(["today", "videos", "podcasts"] as const).map((tab) => (
+            {NAV_TABS.map((tab) => (
               <button
-                key={tab}
-                onClick={() => { setActiveTab(tab); setActiveDomain(null); }}
-                className="shrink-0 px-4 py-2.5 text-[12px] font-medium capitalize transition-all whitespace-nowrap border-b-2"
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id); setActiveDomain(null); }}
+                className="shrink-0 px-3 sm:px-4 py-2.5 text-[12px] font-medium transition-all whitespace-nowrap border-b-2"
                 style={
-                  activeTab === tab
+                  activeTab === tab.id
                     ? { color: "var(--text-primary)", borderColor: "var(--accent)" }
                     : { color: "var(--text-muted)", borderColor: "transparent" }
                 }
               >
-                {tab === "today" ? "Today" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab.label}
               </button>
             ))}
           </div>
         </div>
       </header>
 
-      {/* Domain filter chips */}
-      {!isLoading && domains.length > 0 && (
+      {/* Domain filter chips — only show when on Today tab with multiple domains */}
+      {!isLoading && activeTab === "today" && domains.length > 1 && (
         <div
           className="sticky z-10"
           style={{
@@ -274,25 +299,21 @@ export default function Home() {
             borderBottom: "1px solid var(--border-muted)",
           }}
         >
-          <div className="max-w-[900px] mx-auto">
+          <div className="max-w-[960px] mx-auto">
             <DomainFilterChips domains={domains} active={activeDomain} onSelect={setActiveDomain} />
           </div>
         </div>
       )}
 
       {/* Main content */}
-      <main className="max-w-[900px] mx-auto px-4 py-6">
+      <main className="max-w-[960px] mx-auto px-4 py-6">
 
         {/* Error banner */}
         {error && (
           <div
             role="alert"
             className="mb-5 text-[13px] rounded-lg px-4 py-3"
-            style={{
-              color: "#fca5a5",
-              background: "rgba(239,68,68,0.08)",
-              border: "1px solid rgba(239,68,68,0.20)",
-            }}
+            style={{ color: "#fca5a5", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.20)" }}
           >
             {error}
           </div>
@@ -300,7 +321,6 @@ export default function Home() {
 
         {isLoading ? (
           <div className="space-y-10">
-            {/* Hero skeleton */}
             <div
               className="rounded-xl p-6 animate-pulse"
               style={{ background: "var(--surface-raised)", border: "1px solid var(--border)" }}
@@ -317,11 +337,11 @@ export default function Home() {
           </div>
         ) : domainFiltered.length === 0 ? (
           <EmptyState
-            title={activeTab === "today" ? "No digest yet" : `No ${activeTab} yet`}
+            title={activeTab === "today" ? "No digest yet" : `Nothing in ${currentTabDef.label} yet`}
             subtitle={
               activeTab === "today"
-                ? "No significant AI developments to report. Trigger a refresh to fetch the latest."
-                : `No ${activeTab} found in this digest cycle.`
+                ? "Trigger a refresh to fetch the latest AI developments."
+                : `No ${currentTabDef.label.toLowerCase()} content found in this digest cycle.`
             }
             onRefresh={handleRefresh}
           />
@@ -330,19 +350,19 @@ export default function Home() {
             {/* Briefing header */}
             <div className="mb-6">
               <p className="text-[11px] font-semibold tracking-widest uppercase mb-1" style={{ color: "var(--text-muted)" }}>
-                The AI Briefing
+                AI Builder Briefing
               </p>
               <h1
-                className="text-[22px] sm:text-[28px] leading-tight"
+                className="text-[20px] sm:text-[26px] leading-tight"
                 style={{ fontFamily: "var(--font-serif)", color: "var(--text-primary)" }}
               >
-                AI developments worth knowing today.
+                {activeTab === "today"
+                  ? "What matters for AI builders today."
+                  : `${currentTabDef.label} — what changed this week.`}
               </h1>
               <p className="text-[12px] mt-1" style={{ color: "var(--text-muted)" }}>
                 {today}
-                {currentCycle && (
-                  <span> · {currentCycle.items_synthesized} curated items</span>
-                )}
+                {currentCycle && <span> · {currentCycle.items_synthesized} curated items</span>}
               </p>
             </div>
 
@@ -359,8 +379,7 @@ export default function Home() {
                   style={{ color: "var(--text-secondary)" }}
                   aria-label="Older digest"
                 >
-                  <ChevronLeft />
-                  Older
+                  <ChevronLeft /> Older
                 </button>
                 <div className="text-center">
                   {currentCycleIndex === 0 && (
@@ -381,8 +400,7 @@ export default function Home() {
                   style={{ color: "var(--text-secondary)" }}
                   aria-label="Newer digest"
                 >
-                  Newer
-                  <ChevronRight />
+                  Newer <ChevronRight />
                 </button>
               </div>
             )}
@@ -390,11 +408,11 @@ export default function Home() {
             {/* Hero card — top story */}
             {heroItem && <HeroCard item={heroItem} />}
 
-            {/* Domain sections — remaining items */}
-            {Object.keys(grouped).length > 0 && (
+            {/* Domain sections — remaining items, ordered per spec §21 */}
+            {sortedSections.length > 0 && (
               <div className="space-y-8">
-                {Object.entries(grouped).map(([domain, domainItems]) => (
-                  <DigestSection key={domain} domain={domain} items={domainItems} />
+                {sortedSections.map((domain) => (
+                  <DigestSection key={domain} domain={domain} items={grouped[domain]} />
                 ))}
               </div>
             )}

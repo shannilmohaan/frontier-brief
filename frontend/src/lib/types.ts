@@ -2,21 +2,33 @@ export type ContentType = "video" | "paper" | "newsletter" | "blog" | "social" |
 
 export type Domain =
   | "Agentic AI"
-  | "New Model Capabilities"
-  | "Context Management"
-  | "Token Economics"
-  | "Tool Use & Function Calling"
-  | "AI Coding Agents"
-  | "Reasoning & Planning"
-  | "Agent Memory & Persistence"
-  | "Applied AI Engineering"
-  | "AI Research";
+  | "AI Architecture"
+  | "AI Engineering"
+  | "AI Coding"
+  | "Production AI"
+  | "Models"
+  | "AI Applications"
+  | "Industry";
+
+export type BuildImpact = "Very High" | "High" | "Medium" | "Low" | "Background";
+
+export type ProductionReadiness =
+  | "Experimental"
+  | "Preview"
+  | "Beta"
+  | "Production Ready"
+  | "Enterprise Ready"
+  | "N/A";
 
 export interface DigestItem {
   id: string;
   source_title: string;
   narrative: string;
   why_it_matters: string | null;
+  what_changed: string | null;
+  who_should_care: string | null;
+  build_impact: BuildImpact | null;
+  production_readiness: ProductionReadiness | null;
   importance: number;
   source_name: string;
   source_url: string;

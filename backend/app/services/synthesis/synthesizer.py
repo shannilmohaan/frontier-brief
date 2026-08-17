@@ -13,6 +13,9 @@ logger = logging.getLogger(__name__)
 
 _MAX_ITEMS_PER_DOMAIN = 5
 
+_VALID_BUILD_IMPACTS = {"Very High", "High", "Medium", "Low", "Background"}
+_VALID_PROD_READINESS = {"Experimental", "Preview", "Beta", "Production Ready", "Enterprise Ready", "N/A"}
+
 
 @dataclass
 class SynthesizedItem:
@@ -23,13 +26,17 @@ class SynthesizedItem:
     domain_tags: list[str]
     published_at: datetime
     why_it_matters: str = ""
+    what_changed: str = ""
+    who_should_care: str = ""
+    build_impact: str = "Medium"
+    production_readiness: str = "N/A"
     importance: int = 3
 
 
 def _group_by_domain(items: list[FetchedItem]) -> dict[str, list[FetchedItem]]:
     groups: dict[str, list[FetchedItem]] = {}
     for item in items:
-        primary = item.domain_tags[0] if item.domain_tags else "AI Research"
+        primary = item.domain_tags[0] if item.domain_tags else "Industry"
         groups.setdefault(primary, []).append(item)
     return {domain: domain_items[:_MAX_ITEMS_PER_DOMAIN] for domain, domain_items in groups.items()}
 
@@ -59,22 +66,27 @@ def _parse_response(raw: str, fetched_by_url: dict[str, FetchedItem]) -> list[Sy
         narrative = element.get("narrative", "").strip()
         if not url or not narrative or url not in fetched_by_url:
             logger.warning(
-                "Skipped item: url=%r has_narrative=%s url_in_dict=%s dict_sample=%r",
+                "Skipped item: url=%r has_narrative=%s url_in_dict=%s",
                 url[:120] if url else url,
                 bool(narrative),
                 url in fetched_by_url,
-                list(fetched_by_url.keys())[:2],
             )
             continue
         fetched = fetched_by_url[url]
         # Truncate before citation to limit prompt-injection blast radius
         narrative = narrative[:1000]
         why_it_matters = str(element.get("why_it_matters", "") or "")[:500].strip()
+        what_changed = str(element.get("what_changed", "") or "")[:300].strip()
+        who_should_care = str(element.get("who_should_care", "") or "")[:200].strip()
+        raw_impact = str(element.get("build_impact", "Medium") or "Medium").strip()
+        build_impact = raw_impact if raw_impact in _VALID_BUILD_IMPACTS else "Medium"
+        raw_readiness = str(element.get("production_readiness", "N/A") or "N/A").strip()
+        production_readiness = raw_readiness if raw_readiness in _VALID_PROD_READINESS else "N/A"
         try:
             importance = max(1, min(5, int(element.get("importance", 3))))
         except (TypeError, ValueError):
             importance = 3
-        # Citation is appended deterministically — not left to Claude — to guarantee accuracy.
+        # Citation appended deterministically — not left to Claude — to guarantee accuracy.
         cited_narrative = f"{narrative.rstrip()}\n\nSource: [{fetched.source_name}]({url})"
         results.append(
             SynthesizedItem(
@@ -85,6 +97,10 @@ def _parse_response(raw: str, fetched_by_url: dict[str, FetchedItem]) -> list[Sy
                 domain_tags=fetched.domain_tags,
                 published_at=fetched.published_at,
                 why_it_matters=why_it_matters,
+                what_changed=what_changed,
+                who_should_care=who_should_care,
+                build_impact=build_impact,
+                production_readiness=production_readiness,
                 importance=importance,
             )
         )
