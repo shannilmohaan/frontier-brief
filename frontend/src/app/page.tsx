@@ -9,19 +9,8 @@ import { Spinner } from "@/components/ui/Spinner";
 import { fetchLatestDigest, fetchHistory, pollRefreshStatus, triggerRefresh } from "@/lib/api";
 import type { CycleInfo, DigestItem, Domain } from "@/lib/types";
 
-function formatRelativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
-
-function formatDate(iso: string): string {
+function formatCycleDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
-    weekday: "short",
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -38,19 +27,18 @@ function RefreshIcon() {
   );
 }
 
-function HistoryIcon() {
+function ChevronLeft() {
   return (
-    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-      <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M7.5 4.5V7.5L9.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function BackIcon() {
+function ChevronRight() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 2L10 7L5 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -61,13 +49,10 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [activeCycleId, setActiveCycleId] = useState<string | null>(null);
 
-  // History state
-  const [showHistory, setShowHistory] = useState(false);
+  // Cycle navigation
   const [cycles, setCycles] = useState<CycleInfo[]>([]);
-  const [historyLoading, setHistoryLoading] = useState(false);
+  const [currentCycleIndex, setCurrentCycleIndex] = useState(0);
 
   const mountedRef = useRef(true);
   useEffect(() => {
@@ -81,11 +66,6 @@ export default function Home() {
       const data = await fetchLatestDigest(undefined, cycleId);
       if (!mountedRef.current) return;
       setItems(data.items);
-      setActiveCycleId(data.cycle_id);
-      if (data.items.length > 0) {
-        const latest = data.items.reduce((a, b) => a.created_at > b.created_at ? a : b);
-        setLastUpdated(latest.created_at);
-      }
       setError(null);
     } catch {
       if (!mountedRef.current) return;
@@ -95,26 +75,31 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => { loadDigest(); }, [loadDigest]);
+  // On mount: load history list, then load the latest digest
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await fetchHistory();
+        if (!mountedRef.current) return;
+        setCycles(data.cycles);
+        setCurrentCycleIndex(0);
+        if (data.cycles.length > 0) {
+          await loadDigest(data.cycles[0].id);
+        } else {
+          await loadDigest();
+        }
+      } catch {
+        if (mountedRef.current) await loadDigest();
+      }
+    })();
+  }, [loadDigest]);
 
-  const openHistory = async () => {
-    setShowHistory(true);
-    setHistoryLoading(true);
-    try {
-      const data = await fetchHistory();
-      if (mountedRef.current) setCycles(data.cycles);
-    } catch {
-      // silently fail — list stays empty
-    } finally {
-      if (mountedRef.current) setHistoryLoading(false);
-    }
-  };
-
-  const selectCycle = async (cycleId: string) => {
-    setShowHistory(false);
+  const goToIndex = useCallback(async (index: number) => {
+    if (index < 0 || index >= cycles.length) return;
+    setCurrentCycleIndex(index);
     setActiveDomain(null);
-    await loadDigest(cycleId);
-  };
+    await loadDigest(cycles[index].id);
+  }, [cycles, loadDigest]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -130,8 +115,13 @@ export default function Home() {
         const { status } = await pollRefreshStatus(job_id);
         if (status === "completed") {
           finished = true;
+          // Reload history and show the new cycle
+          const data = await fetchHistory();
+          if (!mountedRef.current) return;
+          setCycles(data.cycles);
+          setCurrentCycleIndex(0);
           setActiveDomain(null);
-          await loadDigest();
+          await loadDigest(data.cycles[0]?.id);
           break;
         }
         if (status === "failed") {
@@ -159,70 +149,47 @@ export default function Home() {
     : items;
 
   const grouped = filteredItems.reduce<Record<string, DigestItem[]>>((acc, item) => {
-    const domain = item.domain_tags[0] ?? "AI Research";
+    const domain = item.domain_tags[0] ?? "AI";
     acc[domain] = [...(acc[domain] ?? []), item];
     return acc;
   }, {});
 
-  const isViewingPast = activeCycleId !== null && cycles.length > 0 &&
-    cycles[0]?.id !== activeCycleId;
+  const currentCycle = cycles[currentCycleIndex] ?? null;
+  const canGoOlder = currentCycleIndex < cycles.length - 1;
+  const canGoNewer = currentCycleIndex > 0;
 
   return (
-    <div className="min-h-screen bg-[#0f172a]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-[#0a0f1e]/95 backdrop-blur-md border-b border-[#1e293b]">
+      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-[#e2e8f0]">
         <div className="max-w-[680px] mx-auto px-4 h-[52px] flex items-center justify-between">
           <button
-            onClick={() => { setShowHistory(false); if (isViewingPast) loadDigest(); }}
-            className="flex items-center gap-2"
+            onClick={() => { setActiveDomain(null); setCurrentCycleIndex(0); if (cycles[0]) loadDigest(cycles[0].id); }}
+            className="text-[16px] font-bold tracking-tight text-[#0f172a]"
           >
-            <span className="text-[16px] font-bold tracking-tight text-[#f1f5f9]">
-              Frontier Brief
-            </span>
-            {isViewingPast && (
-              <span className="text-[11px] text-[#6366f1] font-medium">past digest</span>
-            )}
+            Frontier Brief
           </button>
 
           <div className="flex items-center gap-1">
-            {lastUpdated && !showHistory && (
-              <span className="text-[11px] text-[#475569] tabular-nums mr-1">
-                {formatRelativeTime(lastUpdated)}
-              </span>
-            )}
             <button
-              onClick={() => showHistory ? setShowHistory(false) : openHistory()}
-              className={[
-                "p-2 rounded-lg transition-all min-w-[44px] min-h-[44px] flex items-center justify-center",
-                showHistory
-                  ? "text-[#6366f1] bg-[#1e293b]"
-                  : "text-[#475569] hover:text-[#94a3b8] hover:bg-[#1e293b]",
-              ].join(" ")}
-              aria-label="Digest history"
+              onClick={handleRefresh}
+              disabled={isRefreshing || isLoading}
+              className="p-2 rounded-lg text-[#94a3b8] hover:text-[#64748b] hover:bg-[#f1f5f9] disabled:opacity-30 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Refresh digest"
             >
-              {showHistory ? <BackIcon /> : <HistoryIcon />}
+              {isRefreshing ? (
+                <Spinner className="h-[15px] w-[15px] text-[#4f46e5]" />
+              ) : (
+                <RefreshIcon />
+              )}
             </button>
-            {!showHistory && (
-              <button
-                onClick={handleRefresh}
-                disabled={isRefreshing || isLoading}
-                className="p-2 rounded-lg text-[#475569] hover:text-[#94a3b8] hover:bg-[#1e293b] disabled:opacity-30 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
-                aria-label="Refresh digest"
-              >
-                {isRefreshing ? (
-                  <Spinner className="h-[15px] w-[15px] text-[#6366f1]" />
-                ) : (
-                  <RefreshIcon />
-                )}
-              </button>
-            )}
           </div>
         </div>
       </header>
 
-      {/* Filter chips — only in digest view */}
-      {!showHistory && domains.length > 0 && (
-        <div className="sticky top-[52px] z-10 bg-[#0f172a] border-b border-[#1e293b]">
+      {/* Domain filter chips */}
+      {domains.length > 0 && (
+        <div className="sticky top-[52px] z-10 bg-white border-b border-[#e2e8f0]">
           <DomainFilterChips domains={domains} active={activeDomain} onSelect={setActiveDomain} />
         </div>
       )}
@@ -230,61 +197,91 @@ export default function Home() {
       {/* Main content */}
       <main className="max-w-[680px] mx-auto px-4 py-6">
         {error && (
-          <div role="alert" className="mb-5 text-[13px] text-red-400 bg-red-950/50 border border-red-900/50 rounded-xl px-4 py-3">
+          <div role="alert" className="mb-5 text-[13px] text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
             {error}
           </div>
         )}
 
-        {showHistory ? (
-          /* History list */
-          <div>
-            <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#475569] mb-4">
-              Past Digests
-            </p>
-            {historyLoading ? (
-              <div className="flex justify-center py-16">
-                <Spinner className="h-5 w-5 text-[#334155]" />
-              </div>
-            ) : cycles.length === 0 ? (
-              <EmptyState title="No history yet" subtitle="Run a refresh to create your first digest." />
-            ) : (
-              <div className="flex flex-col gap-2">
-                {cycles.map((cycle, i) => (
-                  <button
-                    key={cycle.id}
-                    onClick={() => selectCycle(cycle.id)}
-                    className="flex items-center justify-between w-full bg-[#1e293b] hover:bg-[#263347] border border-[#334155] hover:border-[#475569] rounded-xl px-4 py-3.5 transition-all text-left min-h-[56px]"
-                  >
-                    <div className="flex items-center gap-3">
-                      {i === 0 && (
-                        <span className="text-[10px] font-semibold text-[#6366f1] bg-[#1e1b4b] px-2 py-0.5 rounded-full">
-                          Latest
-                        </span>
-                      )}
-                      <span className="text-[14px] text-[#e2e8f0] font-medium">
-                        {formatDate(cycle.completed_at)}
-                      </span>
-                    </div>
-                    <span className="text-[12px] text-[#475569] shrink-0 ml-2">
-                      {cycle.items_synthesized} items
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : isLoading ? (
+        {isLoading ? (
           <div className="flex justify-center py-24">
-            <Spinner className="h-5 w-5 text-[#334155]" />
+            <Spinner className="h-5 w-5 text-[#d1d5db]" />
           </div>
         ) : Object.keys(grouped).length === 0 ? (
-          <EmptyState title="No digest yet" subtitle="Hit the refresh button to fetch the latest AI developments." />
+          <EmptyState
+            title="No digest yet"
+            subtitle="Hit the refresh button to fetch the latest AI developments."
+          />
         ) : (
-          <div className="space-y-8">
-            {Object.entries(grouped).map(([domain, domainItems]) => (
-              <DigestSection key={domain} domain={domain} items={domainItems} />
-            ))}
-          </div>
+          <>
+            {/* Cycle navigation */}
+            {cycles.length > 1 && (
+              <div className="flex items-center justify-between mb-6 py-2">
+                <button
+                  onClick={() => goToIndex(currentCycleIndex + 1)}
+                  disabled={!canGoOlder}
+                  className="flex items-center gap-1.5 text-[12px] font-medium text-[#64748b] hover:text-[#0f172a] disabled:opacity-30 disabled:cursor-not-allowed transition-colors min-h-[44px] px-2"
+                  aria-label="Older digest"
+                >
+                  <ChevronLeft />
+                  Older
+                </button>
+
+                <div className="text-center">
+                  {currentCycle && (
+                    <p className="text-[12px] text-[#94a3b8]">
+                      {formatCycleDate(currentCycle.completed_at)}
+                      <span className="mx-1.5">·</span>
+                      {currentCycle.items_synthesized} items
+                    </p>
+                  )}
+                  {currentCycleIndex === 0 && (
+                    <span className="text-[10px] font-semibold text-[#4f46e5] uppercase tracking-wider">
+                      Latest
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => goToIndex(currentCycleIndex - 1)}
+                  disabled={!canGoNewer}
+                  className="flex items-center gap-1.5 text-[12px] font-medium text-[#64748b] hover:text-[#0f172a] disabled:opacity-30 disabled:cursor-not-allowed transition-colors min-h-[44px] px-2"
+                  aria-label="Newer digest"
+                >
+                  Newer
+                  <ChevronRight />
+                </button>
+              </div>
+            )}
+
+            {/* Digest content */}
+            <div className="space-y-8">
+              {Object.entries(grouped).map(([domain, domainItems]) => (
+                <DigestSection key={domain} domain={domain} items={domainItems} />
+              ))}
+            </div>
+
+            {/* Bottom navigation (duplicate for convenience) */}
+            {cycles.length > 1 && (
+              <div className="flex items-center justify-between mt-10 pt-6 border-t border-[#f1f5f9]">
+                <button
+                  onClick={() => goToIndex(currentCycleIndex + 1)}
+                  disabled={!canGoOlder}
+                  className="flex items-center gap-1.5 text-[12px] font-medium text-[#64748b] hover:text-[#0f172a] disabled:opacity-30 disabled:cursor-not-allowed transition-colors min-h-[44px] px-2"
+                >
+                  <ChevronLeft />
+                  Older
+                </button>
+                <button
+                  onClick={() => goToIndex(currentCycleIndex - 1)}
+                  disabled={!canGoNewer}
+                  className="flex items-center gap-1.5 text-[12px] font-medium text-[#64748b] hover:text-[#0f172a] disabled:opacity-30 disabled:cursor-not-allowed transition-colors min-h-[44px] px-2"
+                >
+                  Newer
+                  <ChevronRight />
+                </button>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

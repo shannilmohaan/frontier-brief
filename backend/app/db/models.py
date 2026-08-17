@@ -44,6 +44,7 @@ class SourceItem(Base):
     published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     is_processed: Mapped[bool] = mapped_column(Boolean, default=False)
+    thumbnail_url: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     cycle: Mapped["DigestCycle"] = relationship(back_populates="source_items")
     digest_item: Mapped["DigestItem | None"] = relationship(back_populates="source_item", uselist=False)

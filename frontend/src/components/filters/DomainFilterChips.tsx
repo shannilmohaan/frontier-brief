@@ -48,8 +48,8 @@ function TabButton({
         "shrink-0 px-3 py-3 text-[12px] font-medium transition-all whitespace-nowrap border-b-2",
         "min-h-[44px]",
         active
-          ? "text-[#f1f5f9] border-[#6366f1]"
-          : "text-[#475569] border-transparent hover:text-[#94a3b8]",
+          ? "text-[#4f46e5] border-[#4f46e5]"
+          : "text-[#94a3b8] border-transparent hover:text-[#64748b]",
       ].join(" ")}
     >
       {children}

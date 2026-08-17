@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     database_url: str
     anthropic_api_key: str
     youtube_api_key: str
+    tavily_api_key: str = ""  # optional — WebArticlesFetcher skips gracefully when absent
     refresh_key: str
 
     refresh_interval_hours: int = 48

@@ -1,4 +1,4 @@
-export type ContentType = "video" | "paper" | "newsletter" | "blog" | "social" | "discussion";
+export type ContentType = "video" | "paper" | "newsletter" | "blog" | "social" | "discussion" | "podcast" | "article";
 
 export type Domain =
   | "Agentic AI"
@@ -22,6 +22,7 @@ export interface DigestItem {
   domain_tags: Domain[];
   relevance_score: number;
   created_at: string;
+  thumbnail_url: string | null;
 }
 
 export interface DigestResponse {

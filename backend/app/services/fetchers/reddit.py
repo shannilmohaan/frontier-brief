@@ -94,6 +94,7 @@ class RedditFetcher(BaseFetcher):
                         domain_tags=domain_tags,
                         published_at=published_at,
                         content_type="discussion",
+                        social_score=min(1.0, float(score) / 500.0),
                     )
                 )
             except Exception as exc:

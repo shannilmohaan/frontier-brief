@@ -26,6 +26,7 @@ class DigestItemSchema(BaseModel):
     domain_tags: list[str]
     relevance_score: float
     created_at: datetime
+    thumbnail_url: str | None = None
 
 
 class LatestDigestResponse(BaseModel):
@@ -115,6 +116,7 @@ async def get_latest_digest(
                 domain_tags=row.domain_tags,
                 relevance_score=row.relevance_score,
                 created_at=row.created_at,
+                thumbnail_url=row.source_item.thumbnail_url if row.source_item else None,
             )
             for row in rows
         ],

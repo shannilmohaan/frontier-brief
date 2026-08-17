@@ -60,20 +60,35 @@ def classify_domains(text: str) -> list[str]:
     ]
 
 
+_TYPE_BOOST: dict[str, float] = {
+    "podcast": 0.1,
+    "video": 0.05,
+    "article": 0.0,
+    "newsletter": 0.0,
+    "blog": 0.0,
+    "discussion": -0.05,
+    "social": -0.05,
+    "paper": 0.0,
+}
+
+
 def _relevance_score(item: FetchedItem, now: datetime) -> float:
     published = item.published_at
     if published.tzinfo is None:
         published = published.replace(tzinfo=timezone.utc)
     age_hours = max(0.0, (now - published).total_seconds() / 3600)
-    recency = max(0.0, 1.0 - age_hours / 48.0)
+    recency = max(0.0, 1.0 - age_hours / 168.0)  # 7-day decay window
     domain_match = min(1.0, len(item.domain_tags) * 0.3)
-    return recency * 0.7 + domain_match * 0.3
+    social = getattr(item, "social_score", 0.0)
+    type_boost = _TYPE_BOOST.get(item.content_type, 0.0)
+    base = social * 0.35 + recency * 0.30 + domain_match * 0.25
+    return min(1.0, max(0.0, base + type_boost * 0.10))
 
 
 def rank_and_cap(
     items: list[FetchedItem],
     max_per_domain: int = 10,
-    max_per_source: int = 2,
+    max_per_source: int = 3,
 ) -> list[FetchedItem]:
     """Deduplicate by URL, ensure domain tags, score, and cap per domain and per source."""
     seen_urls: set[str] = set()

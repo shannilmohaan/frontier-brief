@@ -6,9 +6,10 @@ from datetime import datetime, timezone
 from app.core.config import settings
 from app.db.models import DigestCycle, DigestItem, SourceItem
 from app.services.fetchers.base import FetchedItem
-from app.services.fetchers.hackernews import HackerNewsFetcher
+from app.services.fetchers.google_news import GoogleNewsFetcher
+from app.services.fetchers.podcast_rss import PodcastRssFetcher
 from app.services.fetchers.reddit import RedditFetcher
-from app.services.fetchers.rss_feed import RssFeedFetcher
+from app.services.fetchers.web_articles import WebArticlesFetcher
 from app.services.fetchers.youtube import YouTubeFetcher
 from app.services.ranker import rank_and_cap, score_item
 from app.services.synthesis.synthesizer import SynthesizedItem, synthesize
@@ -60,9 +61,10 @@ async def _fetch_and_persist_sources(
 
         fetchers = [
             YouTubeFetcher(window_hours=168),
-            HackerNewsFetcher(window_hours=168),
+            WebArticlesFetcher(window_hours=168),
+            GoogleNewsFetcher(window_hours=168),
+            PodcastRssFetcher(window_hours=168),
             RedditFetcher(window_hours=168),
-            RssFeedFetcher(window_hours=168),
         ]
         raw_results = await asyncio.gather(*[f.fetch() for f in fetchers], return_exceptions=True)
 
@@ -91,6 +93,7 @@ async def _fetch_and_persist_sources(
                 content_type=fetched.content_type,
                 domain_tags=fetched.domain_tags,
                 published_at=fetched.published_at,
+                thumbnail_url=fetched.thumbnail_url,
             )
             session.add(si)
             source_items_by_url[fetched.source_url] = si

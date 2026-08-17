@@ -9,17 +9,14 @@ interface DigestSectionProps {
 export function DigestSection({ domain, items }: DigestSectionProps) {
   return (
     <section>
-      {/* Section header */}
-      <div className="flex items-baseline justify-between pb-3 border-b border-[#1e293b] mb-1">
-        <h2 className="text-[13px] font-bold text-[#f1f5f9] tracking-tight">
+      <div className="flex items-baseline justify-between pb-3 border-b-2 border-[#0f172a] mb-1">
+        <h2 className="text-[13px] font-bold text-[#0f172a] tracking-tight uppercase">
           {domain}
         </h2>
-        <span className="text-[11px] text-[#334155] font-medium">
+        <span className="text-[11px] text-[#94a3b8] font-medium">
           {items.length}
         </span>
       </div>
-
-      {/* Items */}
       <div>
         {items.map((item) => (
           <DigestCard key={item.id} item={item} />
