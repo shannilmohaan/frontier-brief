@@ -3,23 +3,23 @@ import type { BuildImpact } from "@/lib/types";
 const CONFIG: Record<BuildImpact, { label: string; style: React.CSSProperties }> = {
   "Very High": {
     label: "🔥 Very High",
-    style: { background: "rgba(239,68,68,0.14)", color: "#f87171", border: "1px solid rgba(239,68,68,0.25)" },
+    style: { background: "#fee2e2", color: "#991b1b", border: "1px solid #fecaca" },
   },
   "High": {
     label: "▲ High",
-    style: { background: "rgba(245,158,11,0.12)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.25)" },
+    style: { background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a" },
   },
   "Medium": {
     label: "● Medium",
-    style: { background: "rgba(59,130,246,0.10)", color: "#93c5fd", border: "1px solid rgba(59,130,246,0.20)" },
+    style: { background: "#dbeafe", color: "#1e40af", border: "1px solid #bfdbfe" },
   },
   "Low": {
     label: "○ Low",
-    style: { background: "rgba(100,116,139,0.10)", color: "#94a3b8", border: "1px solid rgba(100,116,139,0.20)" },
+    style: { background: "#f1f5f9", color: "#475569", border: "1px solid #e2e8f0" },
   },
   "Background": {
     label: "Background",
-    style: { background: "transparent", color: "var(--text-muted)", border: "1px solid var(--border)" },
+    style: { background: "#f1f5f9", color: "#94a3b8", border: "1px solid #e2e8f0" },
   },
 };
 

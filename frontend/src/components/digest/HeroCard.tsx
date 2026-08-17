@@ -17,10 +17,10 @@ const CONTENT_TYPE_LABELS: Record<string, string> = {
 function ShouldIUsePill({ value }: { value: string | null | undefined }) {
   if (!value) return null;
   const config: Record<string, { label: string; style: React.CSSProperties }> = {
-    "Adopt":      { label: "→ Adopt",      style: { background: "rgba(34,197,94,0.14)",  color: "#86efac",          border: "1px solid rgba(34,197,94,0.3)" } },
-    "Evaluate":   { label: "→ Evaluate",   style: { background: "rgba(59,130,246,0.12)", color: "#93c5fd",          border: "1px solid rgba(59,130,246,0.3)" } },
-    "Experiment": { label: "→ Experiment", style: { background: "rgba(245,158,11,0.12)", color: "#fcd34d",          border: "1px solid rgba(245,158,11,0.3)" } },
-    "Watch":      { label: "→ Watch",      style: { background: "transparent",           color: "var(--text-muted)", border: "1px solid var(--border)" } },
+    "Adopt":      { label: "→ Adopt",      style: { background: "#dcfce7", color: "#166534", border: "1px solid #bbf7d0" } },
+    "Evaluate":   { label: "→ Evaluate",   style: { background: "#dbeafe", color: "#1e40af", border: "1px solid #bfdbfe" } },
+    "Experiment": { label: "→ Experiment", style: { background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a" } },
+    "Watch":      { label: "→ Watch",      style: { background: "#f1f5f9", color: "var(--text-muted)", border: "1px solid var(--border)" } },
   };
   const { label, style } = config[value] ?? config["Watch"];
   return (

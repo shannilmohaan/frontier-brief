@@ -1,11 +1,11 @@
 import type { ProductionReadiness } from "@/lib/types";
 
 const CONFIG: Record<ProductionReadiness, { style: React.CSSProperties }> = {
-  "Experimental":     { style: { background: "rgba(239,68,68,0.10)",   color: "#fca5a5" } },
-  "Preview":          { style: { background: "rgba(245,158,11,0.10)",  color: "#fcd34d" } },
-  "Beta":             { style: { background: "rgba(59,130,246,0.10)",  color: "#93c5fd" } },
-  "Production Ready": { style: { background: "rgba(34,197,94,0.10)",   color: "#86efac" } },
-  "Enterprise Ready": { style: { background: "rgba(16,185,129,0.12)",  color: "#6ee7b7" } },
+  "Experimental":     { style: { background: "#fee2e2", color: "#991b1b" } },
+  "Preview":          { style: { background: "#fef3c7", color: "#92400e" } },
+  "Beta":             { style: { background: "#dbeafe", color: "#1e40af" } },
+  "Production Ready": { style: { background: "#dcfce7", color: "#166534" } },
+  "Enterprise Ready": { style: { background: "#d1fae5", color: "#065f46" } },
   "N/A":              { style: { display: "none" } },
 };
 

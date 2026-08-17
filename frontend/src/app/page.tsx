@@ -175,7 +175,7 @@ export default function Home() {
   // Apply tab filter
   const currentTabDef = NAV_TABS.find((t) => t.id === activeTab)!;
   const tabFiltered = (() => {
-    if (currentTabDef.domain) return items.filter((i) => i.domain_tags.includes(currentTabDef.domain!));
+    if (currentTabDef.domain) return items.filter((i) => i.domain_tags[0] === currentTabDef.domain);
     if (currentTabDef.contentFilter) return items.filter(currentTabDef.contentFilter);
     return items; // "today" = all
   })();
@@ -217,7 +217,7 @@ export default function Home() {
       {/* Header */}
       <header
         className="sticky top-0 z-20 backdrop-blur-md"
-        style={{ background: "rgba(8,9,14,0.90)", borderBottom: "1px solid var(--border)" }}
+        style={{ background: "rgba(245,247,250,0.92)", borderBottom: "1px solid var(--border)" }}
       >
         <div className="max-w-[960px] mx-auto px-4">
           {/* Top bar */}
@@ -294,7 +294,7 @@ export default function Home() {
           className="sticky z-10"
           style={{
             top: "96px",
-            background: "rgba(8,9,14,0.92)",
+            background: "rgba(245,247,250,0.94)",
             backdropFilter: "blur(8px)",
             borderBottom: "1px solid var(--border-muted)",
           }}

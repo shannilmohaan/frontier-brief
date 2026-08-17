@@ -31,9 +31,9 @@ function badgeStyle(contentType: string): React.CSSProperties {
 function ShouldIUseBadge({ value }: { value: string | null | undefined }) {
   if (!value || value === "Watch") return null;
   const styles: Record<string, React.CSSProperties> = {
-    "Adopt":      { background: "rgba(34,197,94,0.12)",   color: "#86efac" },
-    "Evaluate":   { background: "rgba(59,130,246,0.12)",  color: "#93c5fd" },
-    "Experiment": { background: "rgba(245,158,11,0.12)",  color: "#fcd34d" },
+    "Adopt":      { background: "#dcfce7", color: "#166534" },
+    "Evaluate":   { background: "#dbeafe", color: "#1e40af" },
+    "Experiment": { background: "#fef3c7", color: "#92400e" },
   };
   return (
     <span

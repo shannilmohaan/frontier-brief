@@ -3,39 +3,40 @@
 @tailwind utilities;
 
 :root {
-  --bg: #08090e;
-  --surface: #0f1117;
-  --surface-raised: #161b27;
-  --surface-hover: #1c2235;
-  --border: #1e2433;
-  --border-muted: #12161f;
-  --border-bright: #2a3347;
-  --text-primary: #f0f4f8;
-  --text-secondary: #8b95a8;
-  --text-muted: #4a5568;
-  --accent: #5b8af0;
-  --accent-dim: #3d6acc;
-  --accent-warm: #e8a87c;
-  --accent-warm-dim: #c4855a;
-  --badge-video-bg: rgba(239, 68, 68, 0.12);
-  --badge-video-text: #fca5a5;
-  --badge-podcast-bg: rgba(168, 85, 247, 0.12);
-  --badge-podcast-text: #c4b5fd;
-  --badge-article-bg: rgba(59, 130, 246, 0.12);
-  --badge-article-text: #93c5fd;
-  --badge-newsletter-bg: rgba(245, 158, 11, 0.12);
-  --badge-newsletter-text: #fcd34d;
-  --badge-discussion-bg: rgba(34, 197, 94, 0.12);
-  --badge-discussion-text: #86efac;
-  --badge-paper-bg: rgba(100, 116, 139, 0.15);
-  --badge-paper-text: #94a3b8;
-  --badge-social-bg: rgba(14, 165, 233, 0.12);
-  --badge-social-text: #7dd3fc;
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-raised: #eef1f6;
+  --surface-hover: #e5eaf3;
+  --border: #d8dfe9;
+  --border-muted: #e8ecf3;
+  --border-bright: #b8c5d9;
+  --text-primary: #0f172a;
+  --text-secondary: #374151;
+  --text-muted: #8896ab;
+  --accent: #2563eb;
+  --accent-dim: #1d4ed8;
+  --accent-warm: #c2410c;
+  --accent-warm-dim: #9a3412;
+  /* content-type badges */
+  --badge-video-bg: rgba(220, 38, 38, 0.08);
+  --badge-video-text: #b91c1c;
+  --badge-podcast-bg: rgba(124, 58, 237, 0.08);
+  --badge-podcast-text: #6d28d9;
+  --badge-article-bg: rgba(37, 99, 235, 0.08);
+  --badge-article-text: #1e40af;
+  --badge-newsletter-bg: rgba(180, 83, 9, 0.09);
+  --badge-newsletter-text: #92400e;
+  --badge-discussion-bg: rgba(5, 150, 105, 0.08);
+  --badge-discussion-text: #065f46;
+  --badge-paper-bg: rgba(71, 85, 105, 0.08);
+  --badge-paper-text: #475569;
+  --badge-social-bg: rgba(2, 132, 199, 0.08);
+  --badge-social-text: #0369a1;
   /* Build Impact colors */
-  --impact-very-high: #f87171;
-  --impact-high: #fbbf24;
-  --impact-medium: #93c5fd;
-  --impact-low: #94a3b8;
+  --impact-very-high: #dc2626;
+  --impact-high: #d97706;
+  --impact-medium: #2563eb;
+  --impact-low: #64748b;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
