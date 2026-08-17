@@ -9,13 +9,16 @@ interface DigestSectionProps {
 export function DigestSection({ domain, items }: DigestSectionProps) {
   return (
     <section>
-      <div className="flex items-baseline justify-between pb-3 border-b-2 border-[#0f172a] mb-1">
-        <h2 className="text-[13px] font-bold text-[#0f172a] tracking-tight uppercase">
+      <div
+        className="flex items-center mb-1 pt-2"
+        style={{ borderTop: "1px solid var(--border)" }}
+      >
+        <h2
+          className="text-[11px] font-semibold tracking-widest uppercase py-3"
+          style={{ color: "var(--text-muted)", fontVariant: "small-caps" }}
+        >
           {domain}
         </h2>
-        <span className="text-[11px] text-[#94a3b8] font-medium">
-          {items.length}
-        </span>
       </div>
       <div>
         {items.map((item) => (

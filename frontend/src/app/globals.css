@@ -2,6 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg: #08090e;
+  --surface: #0f1117;
+  --surface-raised: #161b27;
+  --surface-hover: #1c2235;
+  --border: #1e2433;
+  --border-muted: #12161f;
+  --border-bright: #2a3347;
+  --text-primary: #f0f4f8;
+  --text-secondary: #8b95a8;
+  --text-muted: #4a5568;
+  --accent: #5b8af0;
+  --accent-dim: #3d6acc;
+  --accent-warm: #e8a87c;
+  --accent-warm-dim: #c4855a;
+  --badge-video-bg: rgba(239, 68, 68, 0.12);
+  --badge-video-text: #fca5a5;
+  --badge-podcast-bg: rgba(168, 85, 247, 0.12);
+  --badge-podcast-text: #c4b5fd;
+  --badge-article-bg: rgba(59, 130, 246, 0.12);
+  --badge-article-text: #93c5fd;
+  --badge-newsletter-bg: rgba(245, 158, 11, 0.12);
+  --badge-newsletter-text: #fcd34d;
+  --badge-discussion-bg: rgba(34, 197, 94, 0.12);
+  --badge-discussion-text: #86efac;
+  --badge-paper-bg: rgba(100, 116, 139, 0.15);
+  --badge-paper-text: #94a3b8;
+  --badge-social-bg: rgba(14, 165, 233, 0.12);
+  --badge-social-text: #7dd3fc;
+}
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Smooth card hover lift */
+.card-lift {
+  transition: transform 150ms ease, border-color 150ms ease;
+}
+.card-lift:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-bright);
 }

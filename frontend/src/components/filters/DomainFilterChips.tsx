@@ -44,13 +44,18 @@ function TabButton({
     <button
       onClick={onClick}
       aria-pressed={active}
-      className={[
-        "shrink-0 px-3 py-3 text-[12px] font-medium transition-all whitespace-nowrap border-b-2",
-        "min-h-[44px]",
+      style={
         active
-          ? "text-[#4f46e5] border-[#4f46e5]"
-          : "text-[#94a3b8] border-transparent hover:text-[#64748b]",
-      ].join(" ")}
+          ? { color: "var(--accent)", borderBottom: "2px solid var(--accent)" }
+          : { color: "var(--text-muted)", borderBottom: "2px solid transparent" }
+      }
+      className="shrink-0 px-3 py-3 text-[12px] font-medium transition-all whitespace-nowrap min-h-[44px]"
+      onMouseEnter={(e) => {
+        if (!active) (e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)";
+      }}
+      onMouseLeave={(e) => {
+        if (!active) (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)";
+      }}
     >
       {children}
     </button>

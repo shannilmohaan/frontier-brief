@@ -16,6 +16,8 @@ export interface DigestItem {
   id: string;
   source_title: string;
   narrative: string;
+  why_it_matters: string | null;
+  importance: number;
   source_name: string;
   source_url: string;
   content_type: ContentType;
