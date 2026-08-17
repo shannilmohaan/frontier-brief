@@ -90,16 +90,23 @@ export function DigestCard({ item }: { item: DigestItem }) {
             <ProductionReadinessPill value={item.production_readiness} />
           </div>
 
-          {/* Title */}
+          {/* Title — clickable link to original */}
           <h3
             className="text-[14px] font-semibold leading-snug mb-2"
             style={{
-              color: "var(--text-primary)",
               fontFamily: isEditorial ? "var(--font-serif)" : "var(--font-sans)",
               fontSize: isEditorial ? "15px" : "14px",
             }}
           >
-            {item.source_title || item.source_name}
+            <a
+              href={item.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline underline-offset-2"
+              style={{ color: "var(--text-primary)", textDecorationColor: "var(--border-bright)" }}
+            >
+              {item.source_title || item.source_name}
+            </a>
           </h3>
 
           {/* Narrative */}
@@ -148,20 +155,11 @@ export function DigestCard({ item }: { item: DigestItem }) {
             </div>
           )}
 
-          {/* Footer: source link + time + should_i_use */}
+          {/* Footer: source name (plain) + time + should_i_use */}
           <div className="flex items-center gap-2 flex-wrap">
-            <a
-              href={item.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[12px] font-medium transition-colors"
-              style={{ color: "var(--accent)" }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "var(--text-primary)")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "var(--accent)")}
-            >
+            <span className="text-[12px] font-medium" style={{ color: "var(--text-muted)" }}>
               {item.source_name}
-              <ExternalLinkIcon />
-            </a>
+            </span>
             <ShouldIUseBadge value={item.should_i_use} />
             <span className="text-[11px]" style={{ color: "var(--text-muted)" }}>
               {formatTimeAgo(item.created_at)}

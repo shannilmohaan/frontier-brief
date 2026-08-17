@@ -89,12 +89,20 @@ export function HeroCard({ item }: { item: DigestItem }) {
         </span>
       </div>
 
-      {/* Headline */}
+      {/* Headline — clickable link to original */}
       <h2
         className="text-[22px] sm:text-[28px] leading-tight mb-4"
-        style={{ fontFamily: "var(--font-serif)", color: "var(--text-primary)" }}
+        style={{ fontFamily: "var(--font-serif)" }}
       >
-        {item.source_title || item.source_name}
+        <a
+          href={item.source_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline underline-offset-2"
+          style={{ color: "var(--text-primary)", textDecorationColor: "var(--border-bright)" }}
+        >
+          {item.source_title || item.source_name}
+        </a>
       </h2>
 
       {/* Thumbnail */}
@@ -151,22 +159,9 @@ export function HeroCard({ item }: { item: DigestItem }) {
             </span>
           )}
         </div>
-        <a
-          href={item.source_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-[12px] font-medium px-3 py-2 rounded-lg transition-colors"
-          style={{ color: "var(--accent)", border: "1px solid var(--border)" }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--accent-dim)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--border)";
-          }}
-        >
-          Read original
-          <ExternalLinkIcon />
-        </a>
+        <span className="text-[11px]" style={{ color: "var(--text-muted)" }}>
+          {item.source_name}
+        </span>
       </div>
     </article>
   );
