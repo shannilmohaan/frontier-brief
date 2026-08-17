@@ -2,7 +2,6 @@ import asyncio
 import logging
 
 import anthropic
-from anthropic.types import TextBlock
 
 from app.core.config import settings
 
@@ -10,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 _MODEL = "claude-sonnet-5"
 _MAX_TOKENS = 4096
-_TIMEOUT_SECONDS = 60.0
+_TIMEOUT_SECONDS = 90.0
 
 _client: anthropic.AsyncAnthropic | None = None
 
@@ -23,7 +22,7 @@ def _get_client() -> anthropic.AsyncAnthropic:
 
 
 async def complete(system: str, user: str) -> str:
-    """Call Claude and return the text of the first content block."""
+    """Call Claude and return the text content from the response."""
     try:
         message = await asyncio.wait_for(
             _get_client().messages.create(
@@ -43,12 +42,21 @@ async def complete(system: str, user: str) -> str:
         raise
 
     blocks = message.content
-    if not blocks or not isinstance(blocks[0], TextBlock):
-        raise ValueError(f"Unexpected response content from Claude: {blocks!r}")
-    text = blocks[0].text
+    logger.debug("Claude response: stop_reason=%r blocks=%r", message.stop_reason, blocks)
+
+    # Claude 5 may include thinking blocks before the text block — find by type attribute
+    text_block = next(
+        (b for b in blocks if getattr(b, "type", None) == "text"),
+        None,
+    )
+    if text_block is None:
+        raise ValueError(
+            f"No text block in Claude response; stop_reason={message.stop_reason!r} blocks={blocks!r}"
+        )
+    text = getattr(text_block, "text", None)
     if text is None:
         raise ValueError(
-            f"Claude returned null text block; stop_reason={message.stop_reason!r}"
+            f"Claude text block has null text; stop_reason={message.stop_reason!r}"
         )
     if not text.strip():
         logger.warning("Claude returned empty text; stop_reason=%r — treating as no items", message.stop_reason)
