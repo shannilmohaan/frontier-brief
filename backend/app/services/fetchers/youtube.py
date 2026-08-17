@@ -21,13 +21,13 @@ YOUTUBE_CHANNELS: list[tuple[str, str]] = [
     ("TwoMinutePapers",       "Two Minute Papers"),
     ("aiexplained-official",  "AI Explained"),
     ("matthew_berman",        "Matthew Berman"),
-    ("DavidShapiroAutomator", "David Shapiro"),
     ("samwitteveenai",        "Sam Witteveen"),
     ("allinpodcast",          "All-In Podcast"),
     ("lexfridman",            "Lex Fridman"),
     ("GoogleDeepMind",        "Google DeepMind"),
     ("OpenAI",                "OpenAI"),
-    ("AnthropicAI",           "Anthropic"),
+    # Anthropic's official YouTube handle
+    ("Anthropic",             "Anthropic"),
 ]
 
 

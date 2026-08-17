@@ -18,9 +18,8 @@ PODCAST_FEEDS: list[tuple[str, str]] = [
     ("https://twimlai.com/feed/",                           "TWIML AI Podcast"),
     ("https://www.latent.space/feed",                       "Latent Space"),
     ("https://practicalai.fm/rss",                          "Practical AI"),
-    ("https://feeds.simplecast.com/JGE3ydsV",               "No Priors"),
-    ("https://www.cognitiverevolution.ai/feed/podcast/",    "The Cognitive Revolution"),
-    ("https://feeds.transistor.fm/gradient-dissent",        "Gradient Dissent"),
+    # No Priors, Cognitive Revolution, Gradient Dissent: original URLs 404'd.
+    # Add back once correct RSS URLs are confirmed.
 ]
 _HTML_TAG = re.compile(r"<[^>]+>")
 

@@ -16,11 +16,15 @@ logger = logging.getLogger(__name__)
 FEEDS: list[tuple[str, str, str]] = [
     # Official AI lab blogs — Tier 1
     ("https://openai.com/news/rss.xml",                         "OpenAI",               "blog"),
-    ("https://www.anthropic.com/news/rss.xml",                  "Anthropic",            "blog"),
-    ("https://deepmind.google/blog/rss/",                       "Google DeepMind",      "blog"),
-    ("https://ai.meta.com/blog/rss/",                           "Meta AI",              "blog"),
-    ("https://blogs.microsoft.com/ai/feed/",                    "Microsoft AI Blog",    "blog"),
-    ("https://mistral.ai/news/rss.xml",                         "Mistral AI Blog",      "blog"),
+    # Anthropic: no public RSS; use their newsletter via Substack
+    ("https://www.anthropic.com/rss.xml",                       "Anthropic",            "blog"),
+    # Google DeepMind blog RSS (alternate path)
+    ("https://deepmind.google/blog/rss",                        "Google DeepMind",      "blog"),
+    # Meta AI moved their blog — try engineering blog
+    ("https://engineering.fb.com/category/ml-applications/feed/", "Meta AI",           "blog"),
+    # Microsoft AI: bot-blocked on direct feed; skip for now
+    # Mistral AI Ghost CMS — standard Ghost RSS path
+    ("https://mistral.ai/rss/",                                 "Mistral AI Blog",      "blog"),
     ("https://huggingface.co/blog/feed.xml",                    "Hugging Face Blog",    "blog"),
     # Engineering / ecosystem
     ("https://aws.amazon.com/blogs/machine-learning/feed/",     "AWS ML Blog",          "blog"),
@@ -29,11 +33,14 @@ FEEDS: list[tuple[str, str, str]] = [
     ("https://importai.substack.com/feed",                      "Import AI",            "newsletter"),
     ("https://magazine.sebastianraschka.com/feed",              "Ahead of AI",          "newsletter"),
     ("https://lastweekin.ai/feed",                              "Last Week in AI",      "newsletter"),
-    ("https://www.bensbites.co/feed",                           "Ben's Bites",          "newsletter"),
+    # Ben's Bites moved to Beehiiv
+    ("https://bensbites.beehiiv.com/feed",                      "Ben's Bites",          "newsletter"),
     ("https://www.interconnects.ai/feed",                       "Interconnects",        "newsletter"),
-    ("https://www.therundown.ai/rss",                           "The Rundown AI",       "newsletter"),
+    # The Rundown AI on Beehiiv
+    ("https://therundown.beehiiv.com/feed",                     "The Rundown AI",       "newsletter"),
     # Learning / course announcements
-    ("https://www.deeplearning.ai/blog/feed.xml",               "DeepLearning.AI Blog", "blog"),
+    # DeepLearning.AI The Batch newsletter
+    ("https://www.deeplearning.ai/the-batch/rss/",              "DeepLearning.AI Blog", "newsletter"),
     ("https://www.fast.ai/index.xml",                           "fast.ai",              "blog"),
 ]
 
