@@ -14,10 +14,13 @@ logger = logging.getLogger(__name__)
 
 PODCAST_FEEDS: list[tuple[str, str]] = [
     # Verified working RSS feeds — do not add guessed URLs here
-    ("https://lexfridman.com/feed/podcast/",    "Lex Fridman Podcast"),
-    ("https://twimlai.com/feed/",               "TWIML AI Podcast"),
-    ("https://www.latent.space/feed",           "Latent Space"),
-    ("https://practicalai.fm/rss",              "Practical AI"),
+    ("https://lexfridman.com/feed/podcast/",                "Lex Fridman Podcast"),
+    ("https://twimlai.com/feed/",                           "TWIML AI Podcast"),
+    ("https://www.latent.space/feed",                       "Latent Space"),
+    ("https://practicalai.fm/rss",                          "Practical AI"),
+    ("https://feeds.simplecast.com/JGE3ydsV",               "No Priors"),
+    ("https://www.cognitiverevolution.ai/feed/podcast/",    "The Cognitive Revolution"),
+    ("https://feeds.transistor.fm/gradient-dissent",        "Gradient Dissent"),
 ]
 _HTML_TAG = re.compile(r"<[^>]+>")
 

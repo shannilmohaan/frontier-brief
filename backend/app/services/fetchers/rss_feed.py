@@ -14,16 +14,27 @@ logger = logging.getLogger(__name__)
 
 # (rss_url, source_name, content_type)
 FEEDS: list[tuple[str, str, str]] = [
-    # Company blogs
-    ("https://openai.com/news/rss.xml",               "OpenAI",           "blog"),
-    ("https://www.anthropic.com/news/rss.xml",         "Anthropic",        "blog"),
-    ("https://deepmind.google/blog/rss/",              "Google DeepMind",  "blog"),
-    ("https://ai.meta.com/blog/rss/",                  "Meta AI",          "blog"),
-    # Newsletters
-    ("https://importai.substack.com/feed",             "Import AI",        "newsletter"),
-    ("https://magazine.sebastianraschka.com/feed",     "Ahead of AI",      "newsletter"),
-    ("https://lastweekin.ai/feed",                     "Last Week in AI",  "newsletter"),
-    ("https://www.bensbites.co/feed",                  "Ben's Bites",      "newsletter"),
+    # Official AI lab blogs — Tier 1
+    ("https://openai.com/news/rss.xml",                         "OpenAI",               "blog"),
+    ("https://www.anthropic.com/news/rss.xml",                  "Anthropic",            "blog"),
+    ("https://deepmind.google/blog/rss/",                       "Google DeepMind",      "blog"),
+    ("https://ai.meta.com/blog/rss/",                           "Meta AI",              "blog"),
+    ("https://blogs.microsoft.com/ai/feed/",                    "Microsoft AI Blog",    "blog"),
+    ("https://mistral.ai/news/rss.xml",                         "Mistral AI Blog",      "blog"),
+    ("https://huggingface.co/blog/feed.xml",                    "Hugging Face Blog",    "blog"),
+    # Engineering / ecosystem
+    ("https://aws.amazon.com/blogs/machine-learning/feed/",     "AWS ML Blog",          "blog"),
+    ("https://blog.langchain.dev/rss/",                         "LangChain Blog",       "blog"),
+    # Curated newsletters
+    ("https://importai.substack.com/feed",                      "Import AI",            "newsletter"),
+    ("https://magazine.sebastianraschka.com/feed",              "Ahead of AI",          "newsletter"),
+    ("https://lastweekin.ai/feed",                              "Last Week in AI",      "newsletter"),
+    ("https://www.bensbites.co/feed",                           "Ben's Bites",          "newsletter"),
+    ("https://www.interconnects.ai/feed",                       "Interconnects",        "newsletter"),
+    ("https://www.therundown.ai/rss",                           "The Rundown AI",       "newsletter"),
+    # Learning / course announcements
+    ("https://www.deeplearning.ai/blog/feed.xml",               "DeepLearning.AI Blog", "blog"),
+    ("https://www.fast.ai/index.xml",                           "fast.ai",              "blog"),
 ]
 
 _HTML_TAG = re.compile(r"<[^>]+>")

@@ -65,26 +65,42 @@ def classify_domains(text: str) -> list[str]:
 # Tier 2: expert curated newsletters / podcasts → 0.75–0.85
 # Tier 3: general web / unknown → 0.5 (default)
 _SOURCE_CREDIBILITY: dict[str, float] = {
-    "OpenAI Blog": 1.0,
-    "Anthropic Blog": 1.0,
-    "Google DeepMind Blog": 1.0,
-    "Meta AI Blog": 1.0,
+    # Tier 1 — official AI lab sources
+    "OpenAI": 1.0,
+    "Anthropic": 1.0,
+    "Google DeepMind": 1.0,
+    "Meta AI": 1.0,
     "Microsoft AI Blog": 1.0,
-    "NVIDIA Blog": 1.0,
     "Mistral AI Blog": 1.0,
-    "arXiv": 0.95,
-    "Hugging Face Papers": 0.90,
-    "The Batch": 0.85,
+    # Tier 1 curators / researchers
+    "Andrej Karpathy": 0.95,
+    "Hugging Face Blog": 0.90,
+    "DeepLearning.AI Blog": 0.90,
+    # Tier 2 — expert curated
+    "Yannic Kilcher": 0.85,
     "Import AI": 0.85,
     "Ahead of AI": 0.85,
     "Interconnects": 0.85,
+    "AWS ML Blog": 0.85,
+    "fast.ai": 0.85,
     "Latent Space": 0.80,
     "Practical AI": 0.80,
+    "No Priors": 0.80,
+    "The Cognitive Revolution": 0.80,
+    "Two Minute Papers": 0.80,
+    "AI Explained": 0.80,
+    "LangChain Blog": 0.80,
     "Lex Fridman Podcast": 0.75,
+    "Lex Fridman": 0.75,
     "TWIML AI Podcast": 0.75,
     "Last Week in AI": 0.75,
+    "The Rundown AI": 0.75,
+    "Gradient Dissent": 0.75,
+    "Matthew Berman": 0.75,
     "Ben's Bites": 0.70,
-    "Google News": 0.65,
+    "David Shapiro": 0.70,
+    "Sam Witteveen": 0.70,
+    "All-In Podcast": 0.70,
 }
 _DEFAULT_CREDIBILITY = 0.5
 
