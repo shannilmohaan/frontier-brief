@@ -234,7 +234,7 @@ export default function Home() {
                 aria-label="Refresh digest"
               >
                 {isRefreshing ? (
-                  <Spinner className="h-3 w-3" style={{ color: "var(--accent)" }} />
+                  <Spinner className="h-3 w-3 text-[#5b8af0]" />
                 ) : (
                   <RefreshIcon />
                 )}
