@@ -29,6 +29,7 @@ export interface DigestItem {
   who_should_care: string | null;
   build_impact: BuildImpact | null;
   production_readiness: ProductionReadiness | null;
+  should_i_use: "Adopt" | "Evaluate" | "Experiment" | "Watch" | null;
   importance: number;
   source_name: string;
   source_url: string;

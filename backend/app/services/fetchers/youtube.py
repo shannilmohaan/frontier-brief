@@ -16,18 +16,22 @@ YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3"
 # Format: (youtube_handle_without_@, display_name)
 # Uses the uploads-playlist approach (2 API units per channel, vs 100 for search).
 YOUTUBE_CHANNELS: list[tuple[str, str]] = [
-    ("AndrejKarpathy",        "Andrej Karpathy"),
-    ("YannicKilcher",         "Yannic Kilcher"),
-    ("TwoMinutePapers",       "Two Minute Papers"),
-    ("aiexplained-official",  "AI Explained"),
-    ("matthew_berman",        "Matthew Berman"),
-    ("samwitteveenai",        "Sam Witteveen"),
-    ("allinpodcast",          "All-In Podcast"),
-    ("lexfridman",            "Lex Fridman"),
-    ("GoogleDeepMind",        "Google DeepMind"),
-    ("OpenAI",                "OpenAI"),
-    # Anthropic's official YouTube handle
-    ("Anthropic",             "Anthropic"),
+    # Official AI labs
+    ("OpenAI",           "OpenAI"),
+    ("Anthropic",        "Anthropic"),
+    # Top independent educators for builders
+    ("AndrejKarpathy",   "Andrej Karpathy"),
+    ("DeepLearningAI",   "DeepLearning.AI"),
+    ("Fireship",         "Fireship"),
+    # Framework / ecosystem channels
+    ("LangChain",        "LangChain"),
+    # Builder-focused AI creators
+    ("ColeMedin",        "Cole Medin"),
+    ("AIJasonZ",         "AI Jason"),
+    ("daveebbelaar",     "Dave Ebbelaar"),
+    ("mattpocockuk",     "Matt Pocock"),
+    # Simon Willison YouTube (practical LLM/agent demos)
+    ("simonw",           "Simon Willison"),
 ]
 
 

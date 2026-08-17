@@ -124,6 +124,7 @@ async def _persist_digest_items(
                     who_should_care=synth.who_should_care or None,
                     build_impact=synth.build_impact or None,
                     production_readiness=synth.production_readiness or None,
+                    should_i_use=synth.should_i_use or None,
                     importance=synth.importance,
                     source_name=synth.source_name,
                     source_url=synth.source_url,

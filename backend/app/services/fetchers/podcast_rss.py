@@ -13,13 +13,11 @@ from app.services.ranker import classify_domains
 logger = logging.getLogger(__name__)
 
 PODCAST_FEEDS: list[tuple[str, str]] = [
-    # Verified working RSS feeds — do not add guessed URLs here
-    ("https://lexfridman.com/feed/podcast/",                "Lex Fridman Podcast"),
-    ("https://twimlai.com/feed/",                           "TWIML AI Podcast"),
-    ("https://www.latent.space/feed",                       "Latent Space"),
-    ("https://practicalai.fm/rss",                          "Practical AI"),
-    # No Priors, Cognitive Revolution, Gradient Dissent: original URLs 404'd.
-    # Add back once correct RSS URLs are confirmed.
+    ("https://www.latent.space/feed",                          "Latent Space"),
+    ("https://twimlai.com/feed/",                              "TWIML AI Podcast"),
+    ("https://practicalai.fm/rss",                             "Practical AI"),
+    ("https://softwareengineeringdaily.com/feed/podcast/",     "Software Engineering Daily"),
+    ("https://lexfridman.com/feed/podcast/",                   "Lex Fridman Podcast"),
 ]
 _HTML_TAG = re.compile(r"<[^>]+>")
 

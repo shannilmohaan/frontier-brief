@@ -64,6 +64,7 @@ class DigestItem(Base):
     who_should_care: Mapped[str | None] = mapped_column(Text, nullable=True)
     build_impact: Mapped[str | None] = mapped_column(String(20), nullable=True)
     production_readiness: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    should_i_use: Mapped[str | None] = mapped_column(String(20), nullable=True)
     importance: Mapped[int] = mapped_column(Integer, default=3)
     source_name: Mapped[str] = mapped_column(String(100), nullable=False)
     source_url: Mapped[str] = mapped_column(Text, nullable=False)

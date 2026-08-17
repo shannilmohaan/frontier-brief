@@ -65,42 +65,60 @@ def classify_domains(text: str) -> list[str]:
 
 # Source credibility — keys match source_name values emitted by fetchers exactly.
 _SOURCE_CREDIBILITY: dict[str, float] = {
-    # Tier 1 — official AI lab sources
+    # === Tier 1 — Primary sources (authoritative for their own products) ===
     "OpenAI": 1.0,
     "Anthropic": 1.0,
+    "Google AI Blog": 1.0,
     "Google DeepMind": 1.0,
     "Meta AI": 1.0,
-    "Microsoft AI Blog": 1.0,
-    "Mistral AI Blog": 1.0,
-    # Tier 1 curators / researchers
+
+    # === Tier 1 — Independent practitioners (highest learning value) ===
+    "Simon Willison": 0.98,
+    "Chip Huyen": 0.97,
+    "Eugene Yan": 0.95,
+    "Hamel Husain": 0.95,
     "Andrej Karpathy": 0.95,
+
+    # === Tier 2 — High-signal engineering sources ===
+    "AWS ML Blog": 0.90,
     "Hugging Face Blog": 0.90,
-    "DeepLearning.AI Blog": 0.90,
-    # Tier 2 — expert curated
-    "Yannic Kilcher": 0.85,
-    "Import AI": 0.85,
-    "Ahead of AI": 0.85,
-    "Interconnects": 0.85,
-    "AWS ML Blog": 0.85,
-    "fast.ai": 0.85,
-    "Latent Space": 0.80,
-    "Practical AI": 0.80,
-    "No Priors": 0.80,
-    "The Cognitive Revolution": 0.80,
-    "Two Minute Papers": 0.80,
-    "AI Explained": 0.80,
-    "LangChain Blog": 0.80,
-    "Lex Fridman Podcast": 0.75,
-    "Lex Fridman": 0.75,
-    "TWIML AI Podcast": 0.75,
-    "Last Week in AI": 0.75,
-    "The Rundown AI": 0.75,
-    "Gradient Dissent": 0.75,
-    "Matthew Berman": 0.75,
-    "Ben's Bites": 0.70,
-    "David Shapiro": 0.70,
-    "Sam Witteveen": 0.70,
-    "All-In Podcast": 0.70,
+    "Google Cloud AI": 0.88,
+    "NVIDIA Developer Blog": 0.87,
+    "DeepLearning.AI Blog": 0.88,
+    "Latent Space": 0.90,
+
+    # === Tier 2 — Vendor blogs (high practical relevance, note vendor bias) ===
+    "LangChain Blog": 0.82,
+    "LlamaIndex Blog": 0.82,
+    "Mistral AI Blog": 0.85,
+    "Microsoft AI Blog": 0.85,
+
+    # === Tier 2 — Curated newsletters ===
+    "Import AI": 0.87,
+    "Ahead of AI": 0.87,
+    "Interconnects": 0.87,
+    "Last Week in AI": 0.80,
+    "Ben's Bites": 0.75,
+
+    # === Tier 2 — YouTube educators (builder-focused) ===
+    "DeepLearning.AI": 0.90,
+    "LangChain": 0.82,
+    "Cole Medin": 0.80,
+    "AI Jason": 0.80,
+    "Dave Ebbelaar": 0.78,
+    "Matt Pocock": 0.80,
+    "Fireship": 0.78,
+
+    # === Tier 2 — Podcasts ===
+    "TWIML AI Podcast": 0.78,
+    "Practical AI": 0.78,
+    "Software Engineering Daily": 0.80,
+    "Lex Fridman Podcast": 0.70,
+
+    # === Tier 3 — Industry news (high news value, lower technical depth) ===
+    "TechCrunch AI": 0.60,
+    "a16z AI": 0.72,
+    "The Rundown AI": 0.68,
 }
 _DEFAULT_CREDIBILITY = 0.5
 

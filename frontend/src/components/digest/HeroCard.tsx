@@ -14,6 +14,25 @@ const CONTENT_TYPE_LABELS: Record<string, string> = {
   article: "ARTICLE",
 };
 
+function ShouldIUsePill({ value }: { value: string | null | undefined }) {
+  if (!value) return null;
+  const config: Record<string, { label: string; style: React.CSSProperties }> = {
+    "Adopt":      { label: "→ Adopt",      style: { background: "rgba(34,197,94,0.14)",  color: "#86efac",          border: "1px solid rgba(34,197,94,0.3)" } },
+    "Evaluate":   { label: "→ Evaluate",   style: { background: "rgba(59,130,246,0.12)", color: "#93c5fd",          border: "1px solid rgba(59,130,246,0.3)" } },
+    "Experiment": { label: "→ Experiment", style: { background: "rgba(245,158,11,0.12)", color: "#fcd34d",          border: "1px solid rgba(245,158,11,0.3)" } },
+    "Watch":      { label: "→ Watch",      style: { background: "transparent",           color: "var(--text-muted)", border: "1px solid var(--border)" } },
+  };
+  const { label, style } = config[value] ?? config["Watch"];
+  return (
+    <span
+      className="text-[11px] font-semibold tracking-wide rounded-lg px-3 py-1 shrink-0"
+      style={style}
+    >
+      {label}
+    </span>
+  );
+}
+
 function ExternalLinkIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
@@ -125,6 +144,7 @@ export function HeroCard({ item }: { item: DigestItem }) {
         <div className="flex items-center gap-2 flex-wrap">
           <BuildImpactBadgeLarge value={item.build_impact} />
           <ProductionReadinessPill value={item.production_readiness} />
+          <ShouldIUsePill value={item.should_i_use} />
           {item.who_should_care && (
             <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>
               For: {item.who_should_care}

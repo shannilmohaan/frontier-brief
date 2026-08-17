@@ -14,34 +14,36 @@ logger = logging.getLogger(__name__)
 
 # (rss_url, source_name, content_type)
 FEEDS: list[tuple[str, str, str]] = [
-    # Official AI lab blogs — Tier 1
-    ("https://openai.com/news/rss.xml",                         "OpenAI",               "blog"),
-    # Anthropic: no public RSS; use their newsletter via Substack
-    ("https://www.anthropic.com/rss.xml",                       "Anthropic",            "blog"),
-    # Google DeepMind blog RSS (alternate path)
-    ("https://deepmind.google/blog/rss",                        "Google DeepMind",      "blog"),
-    # Meta AI moved their blog — try engineering blog
-    ("https://engineering.fb.com/category/ml-applications/feed/", "Meta AI",           "blog"),
-    # Microsoft AI: bot-blocked on direct feed; skip for now
-    # Mistral AI Ghost CMS — standard Ghost RSS path
-    ("https://mistral.ai/rss/",                                 "Mistral AI Blog",      "blog"),
-    ("https://huggingface.co/blog/feed.xml",                    "Hugging Face Blog",    "blog"),
-    # Engineering / ecosystem
-    ("https://aws.amazon.com/blogs/machine-learning/feed/",     "AWS ML Blog",          "blog"),
-    ("https://blog.langchain.dev/rss/",                         "LangChain Blog",       "blog"),
-    # Curated newsletters
-    ("https://importai.substack.com/feed",                      "Import AI",            "newsletter"),
-    ("https://magazine.sebastianraschka.com/feed",              "Ahead of AI",          "newsletter"),
-    ("https://lastweekin.ai/feed",                              "Last Week in AI",      "newsletter"),
-    # Ben's Bites moved to Beehiiv
-    ("https://bensbites.beehiiv.com/feed",                      "Ben's Bites",          "newsletter"),
-    ("https://www.interconnects.ai/feed",                       "Interconnects",        "newsletter"),
-    # The Rundown AI on Beehiiv
-    ("https://therundown.beehiiv.com/feed",                     "The Rundown AI",       "newsletter"),
-    # Learning / course announcements
-    # DeepLearning.AI The Batch newsletter
-    ("https://www.deeplearning.ai/the-batch/rss/",              "DeepLearning.AI Blog", "newsletter"),
-    ("https://www.fast.ai/index.xml",                           "fast.ai",              "blog"),
+    # === Official AI lab blogs (Tier 1) ===
+    ("https://openai.com/news/rss.xml",                                    "OpenAI",                "blog"),
+    ("https://www.anthropic.com/rss.xml",                                  "Anthropic",             "blog"),
+    ("https://blog.google/technology/ai/rss/",                             "Google AI Blog",        "blog"),
+    ("https://aws.amazon.com/blogs/machine-learning/feed/",                "AWS ML Blog",           "blog"),
+    ("https://huggingface.co/blog/feed.xml",                               "Hugging Face Blog",     "blog"),
+    ("https://cloudblog.withgoogle.com/products/ai-machine-learning/rss",  "Google Cloud AI",       "blog"),
+    ("https://developer.nvidia.com/blog/feed/",                            "NVIDIA Developer Blog", "blog"),
+
+    # === High-signal practitioner blogs (Tier 1 independent) ===
+    ("https://simonwillison.net/atom/everything/",                         "Simon Willison",        "blog"),
+    ("https://huyenchip.com/feed.xml",                                     "Chip Huyen",            "blog"),
+    ("https://eugeneyan.com/feed.xml",                                     "Eugene Yan",            "blog"),
+    ("https://hamel.dev/feed.xml",                                         "Hamel Husain",          "blog"),
+
+    # === Framework / ecosystem blogs (Tier 2 vendor) ===
+    ("https://blog.langchain.dev/rss/",                                    "LangChain Blog",        "blog"),
+    ("https://www.llamaindex.ai/blog/rss.xml",                             "LlamaIndex Blog",       "blog"),
+
+    # === Curated newsletters ===
+    ("https://importai.substack.com/feed",                                 "Import AI",             "newsletter"),
+    ("https://magazine.sebastianraschka.com/feed",                         "Ahead of AI",           "newsletter"),
+    ("https://www.latent.space/feed",                                      "Latent Space",          "newsletter"),
+    ("https://www.interconnects.ai/feed",                                  "Interconnects",         "newsletter"),
+    ("https://lastweekin.ai/feed",                                         "Last Week in AI",       "newsletter"),
+    ("https://bensbites.beehiiv.com/feed",                                 "Ben's Bites",           "newsletter"),
+
+    # === Industry news ===
+    ("https://techcrunch.com/category/artificial-intelligence/feed/",      "TechCrunch AI",         "blog"),
+    ("https://a16z.com/category/ai/feed/",                                 "a16z AI",               "blog"),
 ]
 
 _HTML_TAG = re.compile(r"<[^>]+>")

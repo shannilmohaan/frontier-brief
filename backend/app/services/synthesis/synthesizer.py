@@ -15,6 +15,7 @@ _MAX_ITEMS_PER_DOMAIN = 5
 
 _VALID_BUILD_IMPACTS = {"Very High", "High", "Medium", "Low", "Background"}
 _VALID_PROD_READINESS = {"Experimental", "Preview", "Beta", "Production Ready", "Enterprise Ready", "N/A"}
+_VALID_SHOULD_I_USE = {"Adopt", "Evaluate", "Experiment", "Watch"}
 
 
 @dataclass
@@ -30,6 +31,7 @@ class SynthesizedItem:
     who_should_care: str = ""
     build_impact: str = "Medium"
     production_readiness: str = "N/A"
+    should_i_use: str = "Watch"
     importance: int = 3
 
 
@@ -82,6 +84,8 @@ def _parse_response(raw: str, fetched_by_url: dict[str, FetchedItem]) -> list[Sy
         build_impact = raw_impact if raw_impact in _VALID_BUILD_IMPACTS else "Medium"
         raw_readiness = str(element.get("production_readiness", "N/A") or "N/A").strip()
         production_readiness = raw_readiness if raw_readiness in _VALID_PROD_READINESS else "N/A"
+        raw_use = str(element.get("should_i_use", "Watch") or "Watch").strip()
+        should_i_use = raw_use if raw_use in _VALID_SHOULD_I_USE else "Watch"
         try:
             importance = max(1, min(5, int(element.get("importance", 3))))
         except (TypeError, ValueError):
@@ -101,6 +105,7 @@ def _parse_response(raw: str, fetched_by_url: dict[str, FetchedItem]) -> list[Sy
                 who_should_care=who_should_care,
                 build_impact=build_impact,
                 production_readiness=production_readiness,
+                should_i_use=should_i_use,
                 importance=importance,
             )
         )

@@ -46,6 +46,7 @@ Return ONLY a raw JSON array (no markdown fences, no preamble, no trailing text)
 - "build_impact": One of: "Very High" (materially changes how AI apps are built), "High" (important for architecture or engineering decisions), "Medium" (useful capability or tool), "Low" (interesting but limited immediate impact), "Background" (awareness only).
 - "production_readiness": One of: "Experimental", "Preview", "Beta", "Production Ready", "Enterprise Ready", "N/A". Only use "Production Ready" or "Enterprise Ready" when evidence clearly supports it.
 - "importance": integer 1–5. Editorial judgment of significance in the AI builder context. 5 = landmark. 4 = significant. 3 = notable. 2 = minor. 1 = low signal.
+- "should_i_use": One of: "Adopt" (ready for production use now), "Evaluate" (worth testing in a real project), "Experiment" (worth a proof-of-concept), "Watch" (interesting but not yet actionable). Based only on current evidence in the provided input.
 
 Items:
 {serialized}"""

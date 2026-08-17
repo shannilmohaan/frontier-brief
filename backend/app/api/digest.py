@@ -1,15 +1,16 @@
+import os
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import delete as sa_delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.core.config import settings
 from app.db.database import get_session
-from app.db.models import DigestCycle, DigestItem
+from app.db.models import DigestCycle, DigestItem, SourceItem
 
 router = APIRouter(prefix="/api/digest", tags=["digest"])
 
@@ -25,6 +26,7 @@ class DigestItemSchema(BaseModel):
     who_should_care: str | None = None
     build_impact: str | None = None
     production_readiness: str | None = None
+    should_i_use: str | None = None
     importance: int = 3
     source_name: str
     source_url: str
@@ -121,6 +123,7 @@ async def get_latest_digest(
                 who_should_care=row.who_should_care,
                 build_impact=row.build_impact,
                 production_readiness=row.production_readiness,
+                should_i_use=row.should_i_use,
                 importance=row.importance,
                 source_name=row.source_name,
                 source_url=row.source_url,
@@ -135,3 +138,18 @@ async def get_latest_digest(
         domain_filter=domain,
         cycle_id=cycle.id,
     )
+
+
+@router.delete("/clear-all", status_code=204)
+async def clear_all_digest_data(
+    token: str = Query(..., description="Admin token from ADMIN_TOKEN env var"),
+    session: AsyncSession = Depends(get_session),
+) -> None:
+    """Wipe all digest cycles, source items, and digest items. Requires ADMIN_TOKEN env var."""
+    expected = os.getenv("ADMIN_TOKEN", "")
+    if not expected or token != expected:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    await session.execute(sa_delete(DigestItem))
+    await session.execute(sa_delete(SourceItem))
+    await session.execute(sa_delete(DigestCycle))
+    await session.commit()

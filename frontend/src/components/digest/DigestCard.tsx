@@ -28,6 +28,23 @@ function badgeStyle(contentType: string): React.CSSProperties {
   return map[contentType] ?? { background: "var(--badge-article-bg)", color: "var(--badge-article-text)" };
 }
 
+function ShouldIUseBadge({ value }: { value: string | null | undefined }) {
+  if (!value || value === "Watch") return null;
+  const styles: Record<string, React.CSSProperties> = {
+    "Adopt":      { background: "rgba(34,197,94,0.12)",   color: "#86efac" },
+    "Evaluate":   { background: "rgba(59,130,246,0.12)",  color: "#93c5fd" },
+    "Experiment": { background: "rgba(245,158,11,0.12)",  color: "#fcd34d" },
+  };
+  return (
+    <span
+      className="text-[9px] font-semibold uppercase tracking-wider rounded-full px-1.5 py-0.5"
+      style={styles[value] ?? {}}
+    >
+      {value}
+    </span>
+  );
+}
+
 function ExternalLinkIcon() {
   return (
     <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true">
@@ -131,8 +148,8 @@ export function DigestCard({ item }: { item: DigestItem }) {
             </div>
           )}
 
-          {/* Footer: source link + time */}
-          <div className="flex items-center gap-2">
+          {/* Footer: source link + time + should_i_use */}
+          <div className="flex items-center gap-2 flex-wrap">
             <a
               href={item.source_url}
               target="_blank"
@@ -145,6 +162,7 @@ export function DigestCard({ item }: { item: DigestItem }) {
               {item.source_name}
               <ExternalLinkIcon />
             </a>
+            <ShouldIUseBadge value={item.should_i_use} />
             <span className="text-[11px]" style={{ color: "var(--text-muted)" }}>
               {formatTimeAgo(item.created_at)}
             </span>
