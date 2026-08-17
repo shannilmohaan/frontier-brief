@@ -19,6 +19,9 @@ CHANNEL_HANDLES = [
     "TwoMinutePapers",
     "aiexplained-official",
     "matthew_berman",
+    "DavidShapiroAutomator",
+    "samwitteveenai",
+    "allinpodcast",
 ]
 
 

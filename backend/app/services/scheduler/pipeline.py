@@ -6,7 +6,9 @@ from datetime import datetime, timezone
 from app.core.config import settings
 from app.db.models import DigestCycle, DigestItem, SourceItem
 from app.services.fetchers.base import FetchedItem
-from app.services.fetchers.hf_papers import HFPapersFetcher
+from app.services.fetchers.hackernews import HackerNewsFetcher
+from app.services.fetchers.reddit import RedditFetcher
+from app.services.fetchers.rss_feed import RssFeedFetcher
 from app.services.fetchers.youtube import YouTubeFetcher
 from app.services.ranker import rank_and_cap, score_item
 from app.services.synthesis.synthesizer import SynthesizedItem, synthesize
@@ -56,9 +58,12 @@ async def _fetch_and_persist_sources(
         cycle.status = "running"
         await session.commit()
 
-        # Both YouTube and HF Papers use a 96h window so weekend runs capture
-        # the week's content (HF doesn't publish Sat/Sun; channels may skip days).
-        fetchers = [YouTubeFetcher(window_hours=96), HFPapersFetcher(window_hours=96)]
+        fetchers = [
+            YouTubeFetcher(window_hours=168),
+            HackerNewsFetcher(window_hours=168),
+            RedditFetcher(window_hours=168),
+            RssFeedFetcher(window_hours=168),
+        ]
         raw_results = await asyncio.gather(*[f.fetch() for f in fetchers], return_exceptions=True)
 
         all_items: list[FetchedItem] = []
