@@ -25,12 +25,21 @@ FEEDS: list[tuple[str, str, str]] = [
     # === High-signal practitioner blogs (Tier 1 independent) ===
     ("https://simonwillison.net/atom/everything/",                         "Simon Willison",        "blog"),
     ("https://huyenchip.com/feed.xml",                                     "Chip Huyen",            "blog"),
-    ("https://eugeneyan.com/atom.xml",                                     "Eugene Yan",            "blog"),
+    # Eugene Yan: Hugo blog — /index.xml is the standard Hugo feed path
+    ("https://eugeneyan.com/index.xml",                                    "Eugene Yan",            "blog"),
+    # Hamel Husain: Quarto blog — /index.xml is the standard Quarto feed path
     ("https://hamel.dev/index.xml",                                        "Hamel Husain",          "blog"),
+    # Lilian Weng: OpenAI researcher, GitHub Pages Hugo blog
+    ("https://lilianweng.github.io/index.xml",                             "Lilian Weng",           "blog"),
+    # Jason Liu: instructor library author, AI engineering practitioner
+    ("https://jxnl.co/feed.xml",                                           "Jason Liu",             "blog"),
+    # AI Snake Oil: Princeton researchers, rigorous AI analysis
+    ("https://aisnakeoil.substack.com/feed",                               "AI Snake Oil",          "blog"),
 
     # === Framework / ecosystem blogs (Tier 2 vendor) ===
     ("https://blog.langchain.dev/rss/",                                    "LangChain Blog",        "blog"),
-    ("https://blog.llamaindex.ai/rss/",                                    "LlamaIndex Blog",       "blog"),
+    # LlamaIndex blog: blog.llamaindex.ai/rss/ returns 404; try alternate path
+    ("https://www.llamaindex.ai/blog/rss.xml",                             "LlamaIndex Blog",       "blog"),
 
     # === Curated newsletters ===
     ("https://importai.substack.com/feed",                                 "Import AI",             "newsletter"),
@@ -40,8 +49,8 @@ FEEDS: list[tuple[str, str, str]] = [
     ("https://lastweekin.ai/feed",                                         "Last Week in AI",       "newsletter"),
     ("https://bensbites.beehiiv.com/feed.xml",                             "Ben's Bites",           "newsletter"),
 
-    # === Industry news ===
-    ("https://techcrunch.com/category/artificial-intelligence/feed/",      "TechCrunch AI",         "blog"),
+    # === Industry analysis (high signal, not noise) ===
+    # TechCrunch removed — industry noise, wrong audience
     ("https://a16z.com/feed/",                                             "a16z AI",               "blog"),
 ]
 

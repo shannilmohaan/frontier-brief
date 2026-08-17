@@ -125,8 +125,13 @@ _SOURCE_CREDIBILITY: dict[str, float] = {
     "Software Engineering Daily": 0.80,
     "Lex Fridman Podcast": 0.70,
 
-    # === Tier 3 — Industry news (high news value, lower technical depth) ===
-    "TechCrunch AI": 0.60,
+    # === Tier 1 — Independent practitioners added ===
+    "Lilian Weng": 0.98,
+    "Jason Liu": 0.90,
+    "AI Snake Oil": 0.85,
+
+    # === Tier 3 — Industry analysis ===
+    # TechCrunch AI removed (source removed from feeds)
     "a16z AI": 0.72,
     "The Rundown AI": 0.68,
 }
